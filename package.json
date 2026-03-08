@@ -41,20 +41,21 @@
     "@nestjs/swagger": "^11.2.5",
     "@nestjs/throttler": "^6.5.0",
     "amqplib": "^0.10.9",
+    "argon2": "^0.44.0",
     "axios": "^1.13.6",
     "class-transformer": "^0.5.1",
     "dayjs": "^1.11.19",
     "jsonwebtoken": "^9.0.3",
+    "libsodium-wrappers-sumo": "^0.8.2",
     "nodemailer": "^7.0.13",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "sequelize": "^6.37.7",
     "sequelize-typescript": "^2.1.6",
+    "shamir-secret-sharing": "^0.0.4",
     "swagger-ui-express": "^5.0.1",
     "tedious": "^19.2.0",
-    "winston": "^3.19.0",
-    "argon2": "^0.44.0",
-    "shamir-secret-sharing": "^0.0.4"
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -68,7 +69,6 @@
     "@types/node": "^22.10.7",
     "@types/nodemailer": "^7.0.9",
     "@types/supertest": "^6.0.2",
-    "@types/winston": "^2.4.4",
     "class-validator": "^0.14.3",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
@@ -83,9 +83,9 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0",
-    "tsx": "^4.21.0"
+    "typescript-eslint": "^8.20.0"
   },
   "jest": {
     "moduleFileExtensions": [

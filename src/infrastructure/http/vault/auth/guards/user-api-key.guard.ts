@@ -24,11 +24,11 @@ export class UserApiKeyGuard implements CanActivate {
     const authorization = await this.authorizationService.getPartnerAuthorization(apiKey);
     if (!authorization.authorized) throw new IllegalAccessException("Não autorizado");
 
-    request.partner = {
+    request.user = {
       id: authorization.id!,
-      name: authorization.name!
+      name: authorization.name!,
     };
 
-    return authorization.authorized;
+    return true;
   }
 }

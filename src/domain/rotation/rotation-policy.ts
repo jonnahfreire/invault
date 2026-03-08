@@ -3,8 +3,8 @@ import { UniqueId } from "../@common/uniqueid";
 
 export enum RotationStrategy {
   TIME_BASED = "time-based",
-  USAGE_BASED = "usage-based"
-} 
+  USAGE_BASED = "usage-based",
+}
 
 interface RotationPolicyProps {
   secretId: UniqueId;
@@ -14,12 +14,7 @@ interface RotationPolicyProps {
 }
 
 export class RotationPolicy extends AggregateRoot<RotationPolicyProps> {
-  public static create(
-    secretId: UniqueId,
-    strategy: RotationStrategy,
-    interval?: number,
-    maxUses?: number,
-  ) {
+  public static create(secretId: UniqueId, strategy: RotationStrategy, interval?: number, maxUses?: number) {
     return new RotationPolicy({
       secretId,
       strategy,

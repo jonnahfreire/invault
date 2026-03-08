@@ -11,7 +11,10 @@ interface MasterKeyProps {
 }
 
 export class MasterKey extends AggregateRoot<MasterKeyProps> {
-  private constructor(readonly props: MasterKeyProps, id?: UniqueId) {
+  private constructor(
+    readonly props: MasterKeyProps,
+    id?: UniqueId,
+  ) {
     super(props, id);
   }
 

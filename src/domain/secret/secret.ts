@@ -1,5 +1,6 @@
 import { AggregateRoot } from "../@common/aggregate-root";
 import { UniqueId } from "../@common/uniqueid";
+import { SecretVersion } from "./secret-version";
 
 export type SecretType = "kv" | "database" | "apikey" | "ssh" | "certificate";
 
@@ -11,22 +12,24 @@ export enum SecretStatus {
 interface SecretProps {
   name: string;
   type: SecretType;
-  tenantId: UniqueId;
-  ownerRoleId: UniqueId;
+  tenantId: string;
+  ownerRoleId: string;
   engineType: string;
   status: SecretStatus;
+  versions?: SecretVersion[];
   createdAt: Date;
+  createdBy?: string;
 }
 
 export class Secret extends AggregateRoot<SecretProps> {
-  private constructor(
+  constructor(
     readonly props: SecretProps,
     id?: UniqueId,
   ) {
     super(props, id);
   }
 
-  public static create(name: string, type: SecretType, tenantId: UniqueId, ownerRoleId: UniqueId, engineType: string) {
+  public static create(name: string, type: SecretType, tenantId: string, ownerRoleId: string, engineType: string, createdBy?: string) {
     return new Secret({
       name,
       type,
@@ -35,6 +38,7 @@ export class Secret extends AggregateRoot<SecretProps> {
       engineType,
       status: SecretStatus.ACTIVE,
       createdAt: new Date(),
+      createdBy,
     });
   }
 
@@ -52,5 +56,9 @@ export class Secret extends AggregateRoot<SecretProps> {
 
   get tenantId() {
     return this.props.tenantId;
+  }
+
+  get secretVersions() {
+    return this.props.versions || [];
   }
 }

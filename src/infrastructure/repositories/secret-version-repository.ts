@@ -1,11 +1,11 @@
-import { SecretVersion } from '../../domain/secret/secret-version';
-import { IRepository } from '../../domain/@common/repository';
-import { InMemoryRepository } from './in-memory-repository';
+import { SecretVersion } from "../../domain/secret/secret-version";
+import { IRepository } from "../../domain/@common/repository";
+import { InMemoryRepository } from "./in-memory-repository";
 
 export class SecretVersionRepository extends InMemoryRepository<SecretVersion> implements IRepository<SecretVersion> {
   async findBySecretId(secretId: string): Promise<SecretVersion[]> {
     const all = await this.findAll();
-    return all.filter(version => version.props.secretId.toString() === secretId);
+    return all.filter((version) => version.props.secretId.toString() === secretId);
   }
 
   async findLatestBySecretId(secretId: string): Promise<SecretVersion | null> {

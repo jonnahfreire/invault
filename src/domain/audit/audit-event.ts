@@ -12,14 +12,7 @@ interface AuditEventProps {
 }
 
 export class AuditEvent extends Entity<AuditEventProps> {
-  public static create(
-    actorId: UniqueId,
-    action: string,
-    resourceId: UniqueId,
-    currentHash: string,
-    previousHash?: string,
-    metadata?: Record<string, unknown>,
-  ) {
+  public static create(actorId: UniqueId, action: string, resourceId: UniqueId, currentHash: string, previousHash?: string, metadata?: Record<string, unknown>) {
     return new AuditEvent({
       actorId,
       action,

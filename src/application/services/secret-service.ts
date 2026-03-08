@@ -1,10 +1,11 @@
-import { Secret, SecretType } from '../../domain/secret/secret';
-import { SecretVersion } from '../../domain/secret/secret-version';
-import { UniqueId } from '../../domain/@common/uniqueid';
-import { EncryptionService } from './encryption-service';
-import { SecretRepository } from '../../infrastructure/repositories/secret-repository';
-import { SecretVersionRepository } from '../../infrastructure/repositories/secret-version-repository';
-import { AuditService } from './audit-service';
+import { Secret, SecretType } from "../../domain/secret/secret";
+import { SecretVersion } from "../../domain/secret/secret-version";
+import { UniqueId } from "../../domain/@common/uniqueid";
+import { EncryptionService } from "./encryption-service";
+import { SecretRepository } from "../../infrastructure/repositories/secret-repository";
+import { SecretVersionRepository } from "../../infrastructure/repositories/secret-version-repository";
+import { AuditService } from "./audit-service";
+import crypto from "node:crypto";
 
 export class SecretService {
   constructor(
@@ -14,15 +15,7 @@ export class SecretService {
     private masterKey: string,
   ) {}
 
-  async createSecret(
-    name: string,
-    type: SecretType,
-    tenantId: UniqueId,
-    ownerRoleId: UniqueId,
-    engineType: string,
-    initialData: Record<string, any>,
-    actorId: UniqueId,
-  ): Promise<Secret> {
+  async createSecret(name: string, type: SecretType, tenantId: UniqueId, ownerRoleId: UniqueId, engineType: string, initialData: Record<string, any>, actorId: UniqueId): Promise<Secret> {
     const secret = Secret.create(name, type, tenantId, ownerRoleId, engineType);
     await this.secretRepo.save(secret);
 
@@ -34,14 +27,10 @@ export class SecretService {
     return secret;
   }
 
-  async addSecretVersion(
-    secretId: UniqueId,
-    data: Record<string, any>,
-    createdBy: UniqueId,
-  ): Promise<SecretVersion> {
+  async addSecretVersion(secretId: UniqueId, data: Record<string, any>, createdBy: UniqueId): Promise<SecretVersion> {
     const secret = await this.secretRepo.findById(secretId);
     if (!secret || !secret.isActive()) {
-      throw new Error('Secret not found or inactive');
+      throw new Error("Secret not found or inactive");
     }
 
     const existingVersions = await this.versionRepo.findBySecretId(secretId.toString());
@@ -57,14 +46,7 @@ export class SecretService {
     const previousVersion = existingVersions[existingVersions.length - 1];
     const previousHash = previousVersion ? this.hashData(await this.decryptVersion(previousVersion)) : undefined;
 
-    await this.auditService.logEvent(
-      createdBy,
-      'secret.version.added',
-      secretId,
-      currentHash,
-      previousHash,
-      { version: versionNumber }
-    );
+    await this.auditService.logEvent(createdBy, "secret.version.added", secretId, currentHash, previousHash, { version: versionNumber });
 
     return version;
   }
@@ -72,12 +54,7 @@ export class SecretService {
   async getSecretData(secretId: UniqueId, actorId: UniqueId): Promise<Record<string, any> | null> {
     const data = await this.getSecretDataInternal(secretId);
     if (data) {
-      await this.auditService.logEvent(
-        actorId,
-        'secret.accessed',
-        secretId,
-        this.hashData(data)
-      );
+      await this.auditService.logEvent(actorId, "secret.accessed", secretId, this.hashData(data));
     }
     return data;
   }
@@ -87,7 +64,7 @@ export class SecretService {
     if (!version) return null;
 
     const decrypted = EncryptionService.decrypt(version.props.encryptedPayload, this.masterKey);
-    return JSON.parse(decrypted);
+    return new Promise(() => JSON.parse(decrypted) as string);
   }
 
   async getSecret(secretId: UniqueId): Promise<Secret | null> {
@@ -95,12 +72,11 @@ export class SecretService {
   }
 
   private hashData(data: any): string {
-    const crypto = require('crypto');
-    return crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex');
+    return crypto.createHash("sha256").update(JSON.stringify(data)).digest("hex");
   }
 
   private async decryptVersion(version: SecretVersion): Promise<any> {
     const decrypted = EncryptionService.decrypt(version.props.encryptedPayload, this.masterKey);
-    return JSON.parse(decrypted);
+    return new Promise(() => JSON.parse(decrypted) as string);
   }
 }

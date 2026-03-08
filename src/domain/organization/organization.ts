@@ -1,14 +1,19 @@
 import { AggregateRoot } from "../@common/aggregate-root";
 import { UniqueId } from "../@common/uniqueid";
+import { Application } from "./application";
 
 interface OrganizationProps {
   name: string;
   parentId?: UniqueId;
+  tenants?: Application[];
   createdAt: Date;
 }
 
 export class Organization extends AggregateRoot<OrganizationProps> {
-  private constructor(readonly props: OrganizationProps, id?: UniqueId) {
+  constructor(
+    readonly props: OrganizationProps,
+    id?: UniqueId,
+  ) {
     super(props, id);
   }
 

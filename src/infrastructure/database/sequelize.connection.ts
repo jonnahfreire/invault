@@ -4,7 +4,6 @@ import { Sequelize } from "sequelize-typescript";
 import { Environment } from "src/application/config/environment";
 import { DATE, QueryTypes, Transaction } from "sequelize";
 import { logger } from "../../application/config/logger";
-import SeedService from "./seed.service";
 
 @Injectable()
 export default class SequelizeConnection extends DatabaseConnection implements OnModuleInit, OnModuleDestroy {
@@ -62,8 +61,8 @@ export default class SequelizeConnection extends DatabaseConnection implements O
         logger.info("Added Models: " + Object.keys(this.sequelize.models).join(", ") + "\n");
       }
 
-      const seeder = new SeedService(this.sequelize);
-      await seeder.seed();
+      // const seeder = new SeedService(this.sequelize);
+      // await seeder.seed();
     } catch (error) {
       logger.error("Failed to connect to the database:", error);
       throw error;

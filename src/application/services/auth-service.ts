@@ -1,7 +1,7 @@
-import { User } from '../../domain/identity/user';
-import { Role } from '../../domain/authorization/role';
-import { Permission } from '../../domain/authorization/permission';
-import { UniqueId } from '../../domain/@common/uniqueid';
+import { User } from "../../domain/identity/user";
+import { Role } from "../../domain/authorization/role";
+import { Permission } from "../../domain/authorization/permission";
+import { UniqueId } from "../../domain/@common/uniqueid";
 
 export class AuthService {
   // Simple in-memory user store for demo
@@ -32,7 +32,7 @@ export class AuthService {
     const role = this.getUserRole(userId);
     if (!role) return false;
 
-    return role.permissions.some(p => p.equals(permission));
+    return role.permissions.some((p) => p.equals(permission));
   }
 
   authorize(userId: UniqueId, resource: string, action: string): boolean {

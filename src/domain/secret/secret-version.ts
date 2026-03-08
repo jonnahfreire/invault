@@ -11,13 +11,14 @@ interface SecretVersionProps {
 }
 
 export class SecretVersion extends Entity<SecretVersionProps> {
-  public static create(
-    secretId: UniqueId,
-    encryptedPayload: string,
-    version: number,
-    createdBy: UniqueId,
-    expiresAt?: Date,
+  constructor(
+    readonly props: SecretVersionProps,
+    id?: UniqueId,
   ) {
+    super(props, id);
+  }
+
+  public static create(secretId: UniqueId, encryptedPayload: string, version: number, createdBy: UniqueId, expiresAt?: Date) {
     return new SecretVersion({
       secretId,
       encryptedPayload,

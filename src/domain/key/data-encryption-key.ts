@@ -9,10 +9,7 @@ interface DataEncryptionKeyProps {
 }
 
 export class DataEncryptionKey extends Entity<DataEncryptionKeyProps> {
-  public static create(
-    keyId: UniqueId,
-    encryptedMaterial: KeyMaterial,
-  ): DataEncryptionKey {
+  public static create(keyId: UniqueId, encryptedMaterial: KeyMaterial): DataEncryptionKey {
     return new DataEncryptionKey({
       keyId,
       encryptedMaterial,

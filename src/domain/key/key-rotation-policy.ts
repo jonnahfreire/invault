@@ -9,11 +9,7 @@ interface KeyRotationPolicyProps {
 }
 
 export class KeyRotationPolicy extends AggregateRoot<KeyRotationPolicyProps> {
-  public static create(
-    keyRingId: UniqueId,
-    intervalDays: number,
-    autoRotate = true,
-  ): KeyRotationPolicy {
+  public static create(keyRingId: UniqueId, intervalDays: number, autoRotate = true): KeyRotationPolicy {
     if (intervalDays < 1) {
       throw new Error("Rotation interval must be at least 1 day.");
     }

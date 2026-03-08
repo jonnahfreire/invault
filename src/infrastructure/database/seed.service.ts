@@ -4,7 +4,7 @@ import { logger } from "src/application/config/logger";
 export default class SeedService {
   constructor(private readonly database: Sequelize) {}
 
-  async seed() {
+  seed() {
     logger.info("Initializing Seeds");
 
     try {

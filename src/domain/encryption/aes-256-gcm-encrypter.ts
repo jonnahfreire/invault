@@ -1,5 +1,5 @@
 import { VaultKeyAlgorithm } from "@domain/key/vault-key-algorithm";
-import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from "crypto";
+import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 
 type Aes256EncryptedData = {
   iv: string;
@@ -37,7 +37,7 @@ export class Aes256GcmEncrypter {
     const tagHex = Buffer.from(data.tag, "hex");
     const decipher = createDecipheriv(this.ALGORITHM, Buffer.from(data.key, "hex"), ivHex);
     decipher.setAuthTag(tagHex);
-    
+
     const decrypted = Buffer.concat([decipher.update(data.cipher, "hex"), decipher.final()]);
     return decrypted.toString("utf-8");
   }

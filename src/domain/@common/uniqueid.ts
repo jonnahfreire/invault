@@ -1,5 +1,5 @@
 export class UniqueId {
-  private constructor(private readonly value: string) {}
+  constructor(private readonly value: string) {}
 
   public static create(value?: string): UniqueId {
     return new UniqueId(value ?? crypto.randomUUID());

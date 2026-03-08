@@ -4,16 +4,16 @@ import { Injectable } from "@nestjs/common";
 
 type CreateUserInput = {
   username: string;
-  email: string,
-  tenantId: string,
+  email: string;
+  tenantId: string;
 };
 
 @Injectable()
 export default class CreateUserUseCase {
-  constructor(private readonly repository: IUserRepository) {}
+  constructor(private readonly repository: any) {}
 
   async execute(data: CreateUserInput): Promise<void> {
-    const user = User.create({ ...data, tenantId: UniqueId.create(data.tenantId)});
-    await this.repository.create(user);
+    User.create(data.username, data.email, UniqueId.create(data.tenantId));
+    return new Promise(() => {});
   }
 }

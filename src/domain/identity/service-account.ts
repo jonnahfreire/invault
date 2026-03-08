@@ -15,15 +15,14 @@ interface ServiceAccountProps {
 }
 
 export class ServiceAccount extends AggregateRoot<ServiceAccountProps> {
-  private constructor(readonly props: ServiceAccountProps, id?: UniqueId) {
+  private constructor(
+    readonly props: ServiceAccountProps,
+    id?: UniqueId,
+  ) {
     super(props, id);
   }
 
-  public static create(
-    name: string,
-    tenantId: UniqueId,
-    publicKey: string,
-  ) {
+  public static create(name: string, tenantId: UniqueId, publicKey: string) {
     return new ServiceAccount({
       name,
       tenantId,

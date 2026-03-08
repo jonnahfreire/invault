@@ -10,15 +10,14 @@ interface RoleProps {
 }
 
 export class Role extends AggregateRoot<RoleProps> {
-  private constructor(readonly props: RoleProps, id?: UniqueId) {
+  private constructor(
+    readonly props: RoleProps,
+    id?: UniqueId,
+  ) {
     super(props, id);
   }
 
-  public static create(
-    name: string,
-    organizationId: UniqueId,
-    parentRoleId?: UniqueId,
-  ) {
+  public static create(name: string, organizationId: UniqueId, parentRoleId?: UniqueId) {
     return new Role({
       name,
       organizationId,

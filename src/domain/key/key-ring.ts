@@ -8,7 +8,10 @@ interface KeyRingProps {
 }
 
 export class KeyRing extends AggregateRoot<KeyRingProps> {
-  private constructor(readonly props: KeyRingProps, id?: UniqueId) {
+  private constructor(
+    readonly props: KeyRingProps,
+    id?: UniqueId,
+  ) {
     super(props, id);
   }
 

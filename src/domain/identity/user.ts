@@ -17,15 +17,14 @@ interface UserProps {
 }
 
 export class User extends AggregateRoot<UserProps> {
-  private constructor(readonly props: UserProps, id?: UniqueId) {
+  private constructor(
+    readonly props: UserProps,
+    id?: UniqueId,
+  ) {
     super(props, id);
   }
 
-  public static create(
-    username: string,
-    email: string,
-    tenantId: UniqueId,
-  ): User {
+  public static create(username: string, email: string, tenantId: UniqueId): User {
     return new User({
       username,
       email,

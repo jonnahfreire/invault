@@ -1,19 +1,19 @@
 import { Entity } from "../@common/entity";
 
 export enum ResourceType {
-  SECRET = "secret", 
+  SECRET = "secret",
   TENANT = "tenant",
-  ROLE =  "role",
-  USER = "user"
-};
+  ROLE = "role",
+  USER = "user",
+}
 
 export enum Action {
   READ = "read",
   WRITE = "write",
   DELETE = "delete",
   ROTATE = "rotate",
-  GRANT = "grant"
-};
+  GRANT = "grant",
+}
 
 interface PermissionProps {
   resource: ResourceType;
@@ -26,9 +26,6 @@ export class Permission extends Entity<PermissionProps> {
   }
 
   public equals(permission: Permission): boolean {
-    return (
-      this.props.resource === permission.props.resource &&
-      this.props.action === permission.props.action
-    );
+    return this.props.resource === permission.props.resource && this.props.action === permission.props.action;
   }
 }

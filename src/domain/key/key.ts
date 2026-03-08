@@ -14,16 +14,14 @@ interface KeyProps {
 }
 
 export class Key extends AggregateRoot<KeyProps> {
-  private constructor(readonly props: KeyProps, id?: UniqueId) {
+  private constructor(
+    readonly props: KeyProps,
+    id?: UniqueId,
+  ) {
     super(props, id);
   }
 
-  public static create(
-    keyRingId: UniqueId,
-    algorithm: KeyAlgorithm,
-    material: KeyMaterial,
-    version: number,
-  ): Key {
+  public static create(keyRingId: UniqueId, algorithm: KeyAlgorithm, material: KeyMaterial, version: number): Key {
     return new Key({
       keyRingId,
       algorithm,
@@ -42,12 +40,7 @@ export class Key extends AggregateRoot<KeyProps> {
     this.props.status = KeyStatus.ROTATED;
     this.props.rotatedAt = new Date();
 
-    return Key.create(
-      this.props.keyRingId,
-      this.props.algorithm,
-      newMaterial,
-      this.props.version + 1,
-    );
+    return Key.create(this.props.keyRingId, this.props.algorithm, newMaterial, this.props.version + 1);
   }
 
   public revoke() {
