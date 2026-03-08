@@ -1,4 +1,6 @@
+import { IOrganizationRepository } from "@domain/organization/organization.repository";
 import { Secret, SecretType } from "@domain/secret/secret";
+import { SecretVersion } from "@domain/secret/secret-version";
 import { ISecretRepository } from "@domain/secret/secret.repository";
 import { Injectable } from "@nestjs/common";
 
@@ -14,31 +16,27 @@ interface Input {
 
 @Injectable()
 export default class CreateSecretUsecase {
-  constructor(private readonly secretRepository: ISecretRepository) {}
+  constructor(
+    private readonly secretRepository: ISecretRepository,
+    private readonly organizationRepository: IOrganizationRepository,
+  ) {}
 
   async execute(input: Input): Promise<Secret> {
     const secret = Secret.create(input.name, input.type, input.tenantId, input.ownerRoleId, input.engineType);
     await this.secretRepository.save(secret);
 
+    // await this.addSecretVersion(secret.id, input.initialData, input.actorId);
+
+    // await this.auditService.logEvent(input.actorId, "secret.created", secret.id, this.hashData({ name: input.name, type: input.type, tenantId: input.tenantId.toString() }), undefined, {
+    //   engineType: input.engineType,
+    // });
+
     // Create initial version
-    await this.addSecretVersion(secret.id, input.initialData, input.actorId);
-
-    await this.auditService.logEvent(input.actorId, "secret.created", secret.id, this.hashData({ name: input.name, type: input.type, tenantId: input.tenantId.toString() }), undefined, {
-      engineType: input.engineType,
-    });
-
-    // const secret = await this.secretRepository.findById(secretId);
-    if (!secret || !secret.isActive()) {
-      throw new Error("Secret not found or inactive");
-    }
-
-    const existingVersions = await this.versionRepo.findBySecretId(secretId.toString());
-    const versionNumber = existingVersions.length + 1;
-
-    const payload = JSON.stringify(data);
+    const versionNumber = 1;
+    const payload = JSON.stringify(input.initialData);
     const encryptedPayload = EncryptionService.encrypt(payload, this.masterKey);
 
-    const version = SecretVersion.create(secretId, encryptedPayload, versionNumber, createdBy);
+    const version = SecretVersion.create(secret.id, encryptedPayload, versionNumber, input.createdBy);
     await this.versionRepo.save(version);
 
     const currentHash = this.hashData(data);
