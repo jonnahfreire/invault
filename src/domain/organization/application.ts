@@ -1,10 +1,12 @@
 import { Entity } from "@domain/@common/entity";
 import { UniqueId } from "../@common/uniqueid";
+import { Secret } from "@domain/secret/secret";
 
 interface ApplicationProps {
   name: string;
   organizationId: UniqueId;
   createdAt: Date;
+  secrets: Secret[];
 }
 
 export class Application extends Entity<ApplicationProps> {
@@ -19,6 +21,7 @@ export class Application extends Entity<ApplicationProps> {
     return new Application({
       name,
       organizationId,
+      secrets: [],
       createdAt: new Date(),
     });
   }

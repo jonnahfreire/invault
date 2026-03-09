@@ -1,14 +1,15 @@
-import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, HasMany, UpdatedAt } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, HasMany, UpdatedAt, BelongsToMany } from "sequelize-typescript";
 import UserModel from "./user.model";
 import ApplicationModel from "./application.model";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { Organization } from "@domain/organization/organization";
 import { Application } from "@domain/organization/application";
+import MembershipModel from "./membership";
 
 @Table({ tableName: "organization", timestamps: true, paranoid: true })
 export default class OrganizationModel extends Model {
   @PrimaryKey
-  @Column({ type: DataType.STRING, field: "id" })
+  @Column({ type: DataType.UUID, field: "id" })
   declare id: string;
 
   @Column({ type: DataType.STRING, field: "name" })
@@ -22,19 +23,25 @@ export default class OrganizationModel extends Model {
   @Column({ type: DataType.DATE, field: "updated_at" })
   declare updatedAt: Date;
 
-  @HasMany(() => UserModel)
+  @BelongsToMany(() => UserModel, () => MembershipModel)
   declare users: UserModel[];
 
   @HasMany(() => ApplicationModel)
   declare applications: ApplicationModel[];
 
   toDomain(): Organization {
-    const organizationId = this.id ? new UniqueId(this.id) : undefined;
-    const tenants = this.applications.map((app) => {
-      const tenantId = app.id ? new UniqueId(app.id) : undefined;
-      return new Application({ name: app.name, organizationId: new UniqueId(app.organization.id), createdAt: app.createdAt }, tenantId);
-    });
-
-    return new Organization({ name: this.name, createdAt: this.createdAt, tenants }, organizationId);
+    const apps = this.applications.map(
+      (app) =>
+        new Application(
+          {
+            name: app.name,
+            organizationId: UniqueId.create(app.organization.id),
+            createdAt: app.createdAt,
+            secrets: app.secrets.map((secret) => secret.toDomain()),
+          },
+          UniqueId.create(app.id),
+        ),
+    );
+    return new Organization({ name: this.name, createdAt: this.createdAt, applications: apps }, UniqueId.create(this.id));
   }
 }

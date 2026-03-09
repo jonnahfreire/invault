@@ -15,14 +15,14 @@ export class SecretService {
     private masterKey: string,
   ) {}
 
-  async createSecret(name: string, type: SecretType, tenantId: UniqueId, ownerRoleId: UniqueId, engineType: string, initialData: Record<string, any>, actorId: UniqueId): Promise<Secret> {
-    const secret = Secret.create(name, type, tenantId, ownerRoleId, engineType);
+  async createSecret(name: string, type: SecretType, applicationId: UniqueId, initialData: Record<string, any>, actorId: UniqueId): Promise<Secret> {
+    const secret = Secret.create(name, type, applicationId);
     await this.secretRepo.save(secret);
 
     // Create initial version
     await this.addSecretVersion(secret.id, initialData, actorId);
 
-    await this.auditService.logEvent(actorId, "secret.created", secret.id, this.hashData({ name, type, tenantId: tenantId.toString() }), undefined, { engineType });
+    await this.auditService.logEvent(actorId, "secret.created", secret.id, this.hashData({ name, type, tenantId: applicationId.toString() }), undefined);
 
     return secret;
   }
@@ -63,7 +63,7 @@ export class SecretService {
     const version = await this.versionRepo.findLatestBySecretId(secretId.toString());
     if (!version) return null;
 
-    const decrypted = EncryptionService.decrypt(version.props.encryptedPayload, this.masterKey);
+    const decrypted = EncryptionService.decrypt(version.props.payload, this.masterKey);
     return new Promise(() => JSON.parse(decrypted) as string);
   }
 
@@ -76,7 +76,7 @@ export class SecretService {
   }
 
   private async decryptVersion(version: SecretVersion): Promise<any> {
-    const decrypted = EncryptionService.decrypt(version.props.encryptedPayload, this.masterKey);
+    const decrypted = EncryptionService.decrypt(version.props.payload, this.masterKey);
     return new Promise(() => JSON.parse(decrypted) as string);
   }
 }

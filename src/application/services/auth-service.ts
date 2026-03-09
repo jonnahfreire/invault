@@ -9,7 +9,7 @@ export class AuthService {
   private roles = new Map<string, Role>();
 
   registerUser(user: User, password: string): void {
-    this.users.set(user.props.username, { user, password });
+    this.users.set(user.props.name, { user, password });
   }
 
   authenticate(username: string, password: string): User | null {

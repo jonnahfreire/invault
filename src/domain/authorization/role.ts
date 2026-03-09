@@ -4,24 +4,24 @@ import { Permission } from "./permission";
 
 interface RoleProps {
   name: string;
-  organizationId: UniqueId;
+  organizationId?: UniqueId;
   parentRoleId?: UniqueId;
   permissions: Permission[];
 }
 
 export class Role extends AggregateRoot<RoleProps> {
-  private constructor(
+  constructor(
     readonly props: RoleProps,
     id?: UniqueId,
   ) {
     super(props, id);
   }
 
-  public static create(name: string, organizationId: UniqueId, parentRoleId?: UniqueId) {
+  public static create(data: RoleProps) {
     return new Role({
-      name,
-      organizationId,
-      parentRoleId,
+      name: data.name,
+      organizationId: data.organizationId,
+      parentRoleId: data.parentRoleId,
       permissions: [],
     });
   }
@@ -34,5 +34,9 @@ export class Role extends AggregateRoot<RoleProps> {
 
   public get permissions() {
     return this.props.permissions;
+  }
+
+  public get generic() {
+    return this.props.organizationId === null;
   }
 }

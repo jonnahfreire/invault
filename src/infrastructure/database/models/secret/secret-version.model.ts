@@ -1,15 +1,15 @@
 import { Table, PrimaryKey, Column, DataType, AllowNull, CreatedAt, Model, BelongsTo } from "sequelize-typescript";
-import OrganizationModel from "../organization/organization.model";
 import { SecretVersion } from "@domain/secret/secret-version";
 import { UniqueId } from "@domain/@common/uniqueid";
+import OrganizationModel from "../organization/organization.model";
 
 @Table({ tableName: "secret_version", timestamps: true, updatedAt: false, paranoid: true })
 export default class SecretVersionModel extends Model {
   @PrimaryKey
-  @Column({ type: DataType.STRING(36) })
+  @Column({ type: DataType.UUID })
   declare id: string;
 
-  @Column({ type: DataType.STRING(36), field: "secret_id" })
+  @Column({ type: DataType.UUID, field: "secret_id" })
   secretId: string;
 
   @AllowNull(false)
@@ -22,11 +22,11 @@ export default class SecretVersionModel extends Model {
 
   @AllowNull(false)
   @Column({ type: DataType.TEXT, field: "payload" })
-  encryptedPayload: string;
+  payload: string;
 
-  @AllowNull(false)
-  @Column({ type: DataType.STRING(36), field: "created_by" })
-  declare createdBy: string;
+  @AllowNull(true)
+  @Column({ type: DataType.UUID, field: "created_by" })
+  declare createdBy?: string;
 
   @AllowNull(true)
   @Column({ type: DataType.DATE, field: "expires_at" })
@@ -40,17 +40,16 @@ export default class SecretVersionModel extends Model {
   declare organization: OrganizationModel;
 
   toDomain(): SecretVersion {
-    const versionId = this.id ? new UniqueId(this.id) : undefined;
     return new SecretVersion(
       {
-        secretId: new UniqueId(this.secretId),
+        secretId: UniqueId.create(this.secretId),
         version: this.version,
-        encryptedPayload: this.encryptedPayload,
-        createdBy: new UniqueId(this.createdBy),
+        payload: this.payload,
+        createdBy: this.createdBy ? UniqueId.create(this.createdBy) : undefined,
         createdAt: this.createdAt,
         expiresAt: this.expiresAt,
       },
-      versionId,
+      UniqueId.create(this.id),
     );
   }
 }

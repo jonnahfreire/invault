@@ -8,7 +8,7 @@ export enum UserStatus {
 }
 
 interface UserProps {
-  username: string;
+  name: string;
   email: string;
   mfaEnabled: boolean;
   status: UserStatus;
@@ -17,7 +17,7 @@ interface UserProps {
 }
 
 export class User extends AggregateRoot<UserProps> {
-  private constructor(
+  constructor(
     readonly props: UserProps,
     id?: UniqueId,
   ) {
@@ -26,7 +26,7 @@ export class User extends AggregateRoot<UserProps> {
 
   public static create(username: string, email: string, tenantId: UniqueId): User {
     return new User({
-      username,
+      name: username,
       email,
       mfaEnabled: false,
       status: UserStatus.ACTIVE,

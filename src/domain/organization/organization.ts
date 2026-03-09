@@ -4,8 +4,7 @@ import { Application } from "./application";
 
 interface OrganizationProps {
   name: string;
-  parentId?: UniqueId;
-  tenants?: Application[];
+  applications?: Application[];
   createdAt: Date;
 }
 
@@ -17,15 +16,10 @@ export class Organization extends AggregateRoot<OrganizationProps> {
     super(props, id);
   }
 
-  public static create(name: string, parentId?: UniqueId) {
+  public static create(name: string) {
     return new Organization({
       name,
-      parentId,
       createdAt: new Date(),
     });
-  }
-
-  public get parentId() {
-    return this.props.parentId;
   }
 }

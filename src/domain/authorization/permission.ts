@@ -1,3 +1,4 @@
+import { UniqueId } from "@domain/@common/uniqueid";
 import { Entity } from "../@common/entity";
 
 export enum ResourceType {
@@ -16,13 +17,21 @@ export enum Action {
 }
 
 interface PermissionProps {
-  resource: ResourceType;
-  action: Action;
+  roleId: UniqueId;
+  resource: ResourceType | string;
+  action: Action | string;
 }
 
 export class Permission extends Entity<PermissionProps> {
-  public static create(resource: ResourceType, action: Action) {
-    return new Permission({ resource, action });
+  constructor(
+    readonly props: PermissionProps,
+    id?: UniqueId,
+  ) {
+    super(props, id);
+  }
+
+  public static create(data: PermissionProps) {
+    return new Permission(data);
   }
 
   public equals(permission: Permission): boolean {

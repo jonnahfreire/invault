@@ -12,11 +12,9 @@ export enum SecretStatus {
 interface SecretProps {
   name: string;
   type: SecretType;
-  tenantId: string;
-  ownerRoleId: string;
-  engineType: string;
+  applicationId: UniqueId;
   status: SecretStatus;
-  versions?: SecretVersion[];
+  versions: SecretVersion[];
   createdAt: Date;
   createdBy?: string;
 }
@@ -29,15 +27,14 @@ export class Secret extends AggregateRoot<SecretProps> {
     super(props, id);
   }
 
-  public static create(name: string, type: SecretType, tenantId: string, ownerRoleId: string, engineType: string, createdBy?: string) {
+  public static create(name: string, type: SecretType, applicationId: UniqueId, createdBy?: string) {
     return new Secret({
       name,
       type,
-      tenantId,
-      ownerRoleId,
-      engineType,
+      applicationId,
       status: SecretStatus.ACTIVE,
       createdAt: new Date(),
+      versions: [],
       createdBy,
     });
   }
@@ -54,11 +51,17 @@ export class Secret extends AggregateRoot<SecretProps> {
     return this.props.status === SecretStatus.REVOKED;
   }
 
-  get tenantId() {
-    return this.props.tenantId;
+  public addVersion(version: SecretVersion) {
+    if (!this.versions.some((v) => v.id === version.id)) {
+      this.props.versions.push(version);
+    }
   }
 
-  get secretVersions() {
+  get applicationId() {
+    return this.props.applicationId;
+  }
+
+  get versions() {
     return this.props.versions || [];
   }
 }

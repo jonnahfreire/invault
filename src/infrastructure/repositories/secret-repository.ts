@@ -6,8 +6,18 @@ import SecretModel from "@infra/database/models/secret/secret.model";
 import SecretVersionModel from "@infra/database/models/secret/secret-version.model";
 
 export class SecretRepository implements ISecretRepository {
-  save(entity: Secret, transaction?: any): Promise<void> {
-    throw new Error("Method not implemented.");
+  async save(entity: Secret, transaction?: any): Promise<void> {
+    await SecretModel.create(
+      {
+        id: entity.id.toString(),
+        name: entity.props.name,
+        type: entity.props.type,
+        applicationId: entity.props.applicationId,
+        status: entity.props.status,
+        createdBy: entity.props.createdBy,
+      },
+      { transaction },
+    );
   }
 
   async findById(id: UniqueId, transaction?: any): Promise<Secret | null> {

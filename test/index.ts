@@ -11,6 +11,7 @@ import { Permission, ResourceType, Action } from "@domain/authorization/permissi
 import { Role } from "@domain/authorization/role";
 import { SecretRepository } from "@infra/repositories/secret-repository";
 import { SecretVersionRepository } from "@infra/repositories/secret-version-repository";
+import { UniqueId } from "@domain/@common/uniqueid";
 
 async function main() {
   // Create organization
@@ -24,7 +25,7 @@ async function main() {
   const user = User.create("testuser", "test@example.com", organization.id);
   console.log("User created:", {
     id: user.id.toString(),
-    username: user.props.username,
+    username: user.props.name,
     email: user.props.email,
   });
 
@@ -57,7 +58,7 @@ async function main() {
   if (!authenticatedUser) {
     throw new Error("Authentication failed");
   }
-  console.log("User authenticated:", authenticatedUser.props.username);
+  console.log("User authenticated:", authenticatedUser.props.name);
 
   // Check permissions
   const canReadSecret = authService.authorize(authenticatedUser.id, ResourceType.SECRET, Action.READ);
@@ -72,7 +73,8 @@ async function main() {
   const secretService = new SecretService(secretRepo, versionRepo, auditService, masterKey);
 
   // Create a secret
-  const secret = await secretService.createSecret("database-password", "kv", organization.id, role.id, "kv", { username: "dbuser", password: "secret123" }, user.id);
+  const applicationId = UniqueId.create();
+  const secret = await secretService.createSecret("database-password", "kv", applicationId, { username: "dbuser", password: "secret123" }, user.id);
   console.log("Secret created:", {
     id: secret.id.toString(),
     name: secret.props.name,

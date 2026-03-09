@@ -3,11 +3,11 @@ import { UniqueId } from "../@common/uniqueid";
 
 interface SecretVersionProps {
   secretId: UniqueId;
-  encryptedPayload: string;
+  payload: string;
   version: number;
   expiresAt?: Date;
   createdAt: Date;
-  createdBy: UniqueId;
+  createdBy?: UniqueId;
 }
 
 export class SecretVersion extends Entity<SecretVersionProps> {
@@ -18,10 +18,10 @@ export class SecretVersion extends Entity<SecretVersionProps> {
     super(props, id);
   }
 
-  public static create(secretId: UniqueId, encryptedPayload: string, version: number, createdBy: UniqueId, expiresAt?: Date) {
+  public static create(secretId: UniqueId, payload: string, version: number, createdBy?: UniqueId, expiresAt?: Date) {
     return new SecretVersion({
       secretId,
-      encryptedPayload,
+      payload,
       version,
       createdAt: new Date(),
       createdBy,

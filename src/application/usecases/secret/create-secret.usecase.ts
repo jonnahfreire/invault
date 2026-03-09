@@ -1,3 +1,5 @@
+import { UniqueId } from "@domain/@common/uniqueid";
+import { Aes256Wrapper } from "@domain/encryption/aes-256-wrapper";
 import { IOrganizationRepository } from "@domain/organization/organization.repository";
 import { Secret, SecretType } from "@domain/secret/secret";
 import { SecretVersion } from "@domain/secret/secret-version";
@@ -7,11 +9,10 @@ import { Injectable } from "@nestjs/common";
 interface Input {
   name: string;
   type: SecretType;
-  tenantId: string;
+  applicationId: string;
   ownerRoleId: string;
-  engineType: string;
   initialData: Record<string, any>;
-  actorId: string;
+  actorId?: string;
 }
 
 @Injectable()
@@ -22,8 +23,7 @@ export default class CreateSecretUsecase {
   ) {}
 
   async execute(input: Input): Promise<Secret> {
-    const secret = Secret.create(input.name, input.type, input.tenantId, input.ownerRoleId, input.engineType);
-    await this.secretRepository.save(secret);
+    const secret = Secret.create(input.name, input.type, UniqueId.create(input.applicationId), input.ownerRoleId);
 
     // await this.addSecretVersion(secret.id, input.initialData, input.actorId);
 
@@ -34,10 +34,11 @@ export default class CreateSecretUsecase {
     // Create initial version
     const versionNumber = 1;
     const payload = JSON.stringify(input.initialData);
-    const encryptedPayload = EncryptionService.encrypt(payload, this.masterKey);
+    const encryptedPayload = Aes256Wrapper.wrap({ cipher: payload, dek: Buffer.from(""), kek: Buffer.from("") });
 
-    const version = SecretVersion.create(secret.id, encryptedPayload, versionNumber, input.createdBy);
-    await this.versionRepo.save(version);
+    const version = SecretVersion.create(secret.id, JSON.stringify(encryptedPayload), versionNumber, input.actorId ? UniqueId.create(input.actorId) : undefined);
+    secret.addVersion(version);
+    await this.secretRepository.save(secret);
 
     const currentHash = this.hashData(data);
     const previousVersion = existingVersions[existingVersions.length - 1];
