@@ -1,4 +1,4 @@
-import { Table, Model, ForeignKey, Column, DataType, CreatedAt, UpdatedAt, PrimaryKey, BelongsToMany } from "sequelize-typescript";
+import { Table, Model, ForeignKey, Column, DataType, CreatedAt, UpdatedAt, PrimaryKey, BelongsToMany, BelongsTo } from "sequelize-typescript";
 import OrganizationModel from "./organization.model";
 import UserModel from "./user.model";
 import MembershipRoleModel from "./membership-role";
@@ -22,9 +22,15 @@ export default class MembershipModel extends Model {
   @Column({ type: DataType.UUID })
   declare userId: string;
 
+  @BelongsTo(() => UserModel, "userId")
+  declare user: UserModel;
+
   @ForeignKey(() => OrganizationModel)
   @Column({ type: DataType.UUID })
   declare organizationId: string;
+
+  @BelongsTo(() => OrganizationModel, "organizationId")
+  declare organization: OrganizationModel;
 
   @BelongsToMany(() => RoleModel, () => MembershipRoleModel)
   declare roles: RoleModel[];

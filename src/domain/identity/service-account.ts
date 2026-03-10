@@ -8,25 +8,23 @@ export enum ServiceAccountStatus {
 
 interface ServiceAccountProps {
   name: string;
-  tenantId: UniqueId;
-  publicKey: string;
+  applicationId: UniqueId;
   status: ServiceAccountStatus;
   createdAt: Date;
 }
 
 export class ServiceAccount extends AggregateRoot<ServiceAccountProps> {
-  private constructor(
+  constructor(
     readonly props: ServiceAccountProps,
     id?: UniqueId,
   ) {
     super(props, id);
   }
 
-  public static create(name: string, tenantId: UniqueId, publicKey: string) {
+  public static create(name: string, applicationId: UniqueId) {
     return new ServiceAccount({
       name,
-      tenantId,
-      publicKey,
+      applicationId,
       status: ServiceAccountStatus.ACTIVE,
       createdAt: new Date(),
     });

@@ -12,7 +12,6 @@ interface UserProps {
   email: string;
   mfaEnabled: boolean;
   status: UserStatus;
-  tenantId: UniqueId;
   createdAt: Date;
 }
 
@@ -24,13 +23,12 @@ export class User extends AggregateRoot<UserProps> {
     super(props, id);
   }
 
-  public static create(username: string, email: string, tenantId: UniqueId): User {
+  public static create(username: string, email: string): User {
     return new User({
       name: username,
       email,
       mfaEnabled: false,
       status: UserStatus.ACTIVE,
-      tenantId,
       createdAt: new Date(),
     });
   }
@@ -57,9 +55,5 @@ export class User extends AggregateRoot<UserProps> {
 
   public isRevoked() {
     return this.props.status === UserStatus.REVOKED;
-  }
-
-  get tenantId() {
-    return this.props.tenantId;
   }
 }

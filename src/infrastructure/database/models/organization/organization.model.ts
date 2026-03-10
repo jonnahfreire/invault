@@ -1,19 +1,23 @@
 import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, HasMany, UpdatedAt, BelongsToMany } from "sequelize-typescript";
+import { UniqueId } from "@domain/@common/uniqueid";
+import { Organization, OrganizationStatus } from "@domain/organization/organization";
+import { Application } from "@domain/organization/application";
+import { User, UserStatus } from "@domain/identity/user";
 import UserModel from "./user.model";
 import ApplicationModel from "./application.model";
-import { UniqueId } from "@domain/@common/uniqueid";
-import { Organization } from "@domain/organization/organization";
-import { Application } from "@domain/organization/application";
 import MembershipModel from "./membership";
 
 @Table({ tableName: "organization", timestamps: true, paranoid: true })
 export default class OrganizationModel extends Model {
   @PrimaryKey
-  @Column({ type: DataType.UUID, field: "id" })
+  @Column({ type: DataType.UUID })
   declare id: string;
 
-  @Column({ type: DataType.STRING, field: "name" })
+  @Column({ type: DataType.STRING })
   declare name: string;
+
+  @Column({ type: DataType.STRING })
+  declare status: string;
 
   @CreatedAt
   @Column({ type: DataType.DATE, field: "created_at" })
@@ -30,18 +34,39 @@ export default class OrganizationModel extends Model {
   declare applications: ApplicationModel[];
 
   toDomain(): Organization {
-    const apps = this.applications.map(
-      (app) =>
-        new Application(
-          {
-            name: app.name,
-            organizationId: UniqueId.create(app.organization.id),
-            createdAt: app.createdAt,
-            secrets: app.secrets.map((secret) => secret.toDomain()),
-          },
-          UniqueId.create(app.id),
+    return new Organization(
+      {
+        name: this.name,
+        status: this.status as OrganizationStatus,
+        createdAt: this.createdAt,
+        applications: this.applications.map(
+          (app) =>
+            new Application(
+              {
+                name: app.name,
+                organizationId: UniqueId.create(app.organization.id),
+                createdAt: app.createdAt,
+                secrets: app.secrets.map((secret) => secret.toDomain()),
+                serviceAccounts: app.serviceAccounts.map((account) => account.toDomain()),
+              },
+              UniqueId.create(app.id),
+            ),
         ),
+        users: this.users.map(
+          (user) =>
+            new User(
+              {
+                name: user.name,
+                email: user.email,
+                mfaEnabled: user.mfaEnabled,
+                status: user.status as UserStatus,
+                createdAt: user.createdAt,
+              },
+              UniqueId.create(user.id),
+            ),
+        ),
+      },
+      UniqueId.create(this.id),
     );
-    return new Organization({ name: this.name, createdAt: this.createdAt, applications: apps }, UniqueId.create(this.id));
   }
 }

@@ -1,9 +1,10 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, BelongsTo, ForeignKey } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, BelongsToMany } from "sequelize-typescript";
 import RoleModel from "./role.model";
-import { Permission } from "@domain/authorization/permission";
+import { Permission } from "@domain/organization/permission";
 import { UniqueId } from "@domain/@common/uniqueid";
+import RolePermissionModel from "./role-permission";
 
-@Table({ tableName: "permission", timestamps: true, updatedAt: false, paranoid: true })
+@Table({ tableName: "permission", timestamps: true, paranoid: true })
 export default class PermissionModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })
@@ -11,24 +12,24 @@ export default class PermissionModel extends Model {
 
   @AllowNull(false)
   @Column({ type: DataType.STRING(200) })
-  declare name: string;
+  declare resource: string;
+
+  @AllowNull(false)
+  @Column({ type: DataType.STRING(200) })
+  declare action: string;
 
   @CreatedAt
   @Column({ type: DataType.DATE, field: "created_at" })
   declare createdAt: Date;
 
-  @ForeignKey(() => RoleModel)
-  declare roleId: string;
-
-  @BelongsTo(() => RoleModel, "roleId")
+  @BelongsToMany(() => RoleModel, () => RolePermissionModel)
   declare role: RoleModel;
 
   toDomain(): Permission {
     return new Permission(
       {
-        resource: this.role.name,
-        action: this.name,
-        roleId: UniqueId.create(this.role.id),
+        resource: this.resource,
+        action: this.action,
       },
       UniqueId.create(this.id),
     );

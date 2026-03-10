@@ -17,7 +17,6 @@ export enum Action {
 }
 
 interface PermissionProps {
-  roleId: UniqueId;
   resource: ResourceType | string;
   action: Action | string;
 }

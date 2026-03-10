@@ -1,6 +1,6 @@
 import { User } from "../../domain/identity/user";
-import { Role } from "../../domain/authorization/role";
-import { Permission } from "../../domain/authorization/permission";
+import { Role } from "../../domain/organization/role";
+import { Permission } from "../../domain/organization/permission";
 import { UniqueId } from "../../domain/@common/uniqueid";
 
 export class AuthService {

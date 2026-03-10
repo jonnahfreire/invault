@@ -10,6 +10,7 @@ export default class OrganizationRepository implements IOrganizationRepository {
       {
         id: entity.id.toString(),
         name: entity.props.name,
+        status: entity.props.status,
       },
       { transaction },
     );

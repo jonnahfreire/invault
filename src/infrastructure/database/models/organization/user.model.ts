@@ -26,10 +26,6 @@ export default class UserModel extends Model {
   @Column({ type: DataType.STRING })
   declare status: string;
 
-  @AllowNull(false)
-  @Column({ type: DataType.UUID, field: "tenant_id" })
-  declare tenantId: string;
-
   @CreatedAt
   @Column({ type: DataType.DATE, field: "created_at" })
   declare createdAt: Date;
@@ -48,7 +44,6 @@ export default class UserModel extends Model {
         email: this.email,
         mfaEnabled: this.mfaEnabled,
         status: this.status as UserStatus,
-        tenantId: UniqueId.create(this.tenantId),
         createdAt: this.createdAt,
       },
       UniqueId.create(this.id),

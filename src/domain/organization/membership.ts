@@ -1,6 +1,6 @@
 import { Entity } from "@domain/@common/entity";
 import { UniqueId } from "@domain/@common/uniqueid";
-import { Role } from "@domain/authorization/role";
+import { Role } from "@domain/organization/role";
 
 interface MembershipProps {
   active: boolean;

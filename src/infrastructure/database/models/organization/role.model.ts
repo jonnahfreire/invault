@@ -1,9 +1,9 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, BelongsTo, UpdatedAt, HasMany, ForeignKey, BelongsToMany } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, BelongsTo, UpdatedAt, ForeignKey, BelongsToMany } from "sequelize-typescript";
+import { Role } from "@domain/organization/role";
+import { UniqueId } from "@domain/@common/uniqueid";
 import OrganizationModel from "./organization.model";
 import PermissionModel from "./permission.model";
-import { Role } from "@domain/authorization/role";
-import { UniqueId } from "@domain/@common/uniqueid";
-import MembershipRoleModel from "./membership-role";
+import RolePermissionModel from "./role-permission";
 
 @Table({ tableName: "role", timestamps: true, paranoid: true })
 export default class RoleModel extends Model {
@@ -37,11 +37,8 @@ export default class RoleModel extends Model {
   @Column({ type: DataType.DATE, field: "updated_at" })
   declare updatedAt: Date;
 
-  @HasMany(() => PermissionModel)
+  @BelongsToMany(() => PermissionModel, () => RolePermissionModel)
   declare permissions: PermissionModel[];
-
-  @BelongsToMany(() => RoleModel, () => MembershipRoleModel)
-  declare roles: RoleModel[];
 
   toDomain(): Role {
     return new Role(

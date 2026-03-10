@@ -3,6 +3,7 @@ import OrganizationModel from "./organization.model";
 import SecretModel from "../secret/secret.model";
 import { Application } from "@domain/organization/application";
 import { UniqueId } from "@domain/@common/uniqueid";
+import ServiceAccountModel from "./service-account.model";
 
 @Table({ tableName: "application", timestamps: true, paranoid: true })
 export default class ApplicationModel extends Model {
@@ -31,6 +32,9 @@ export default class ApplicationModel extends Model {
   @HasMany(() => SecretModel)
   declare secrets: SecretModel[];
 
+  @HasMany(() => ServiceAccountModel)
+  declare serviceAccounts: ServiceAccountModel[];
+
   toDomain(): Application {
     return new Application(
       {
@@ -38,6 +42,7 @@ export default class ApplicationModel extends Model {
         organizationId: UniqueId.create(this.organizationId),
         createdAt: this.createdAt,
         secrets: this.secrets.map((secret) => secret.toDomain()),
+        serviceAccounts: this.serviceAccounts.map((account) => account.toDomain()),
       },
       UniqueId.create(this.id),
     );
