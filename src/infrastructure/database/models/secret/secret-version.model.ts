@@ -1,14 +1,21 @@
-import { Table, PrimaryKey, Column, DataType, AllowNull, CreatedAt, Model, BelongsTo } from "sequelize-typescript";
+import { Table, PrimaryKey, Column, DataType, AllowNull, CreatedAt, Model, BelongsTo, ForeignKey } from "sequelize-typescript";
 import { SecretVersion } from "@domain/secret/secret-version";
 import { UniqueId } from "@domain/@common/uniqueid";
-import OrganizationModel from "../organization/organization.model";
+import SecretModel from "./secret.model";
 
-@Table({ tableName: "secret_version", timestamps: true, updatedAt: false, paranoid: true })
+@Table({
+  tableName: "secret_version",
+  timestamps: true,
+  updatedAt: false,
+  paranoid: true,
+  indexes: [{ unique: true, fields: ["secret_id", "version"] }, { fields: ["secret_id", "created_at"] }],
+})
 export default class SecretVersionModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })
   declare id: string;
 
+  @ForeignKey(() => SecretModel)
   @Column({ type: DataType.UUID, field: "secret_id" })
   secretId: string;
 
@@ -16,15 +23,11 @@ export default class SecretVersionModel extends Model {
   dekId: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING(200) })
-  declare name: string;
-
-  @AllowNull(false)
-  @Column({ type: DataType.NUMBER })
+  @Column({ type: DataType.INTEGER })
   declare version: number;
 
   @AllowNull(false)
-  @Column({ type: DataType.TEXT, field: "payload" })
+  @Column({ type: DataType.TEXT })
   payload: string;
 
   @AllowNull(true)
@@ -39,8 +42,8 @@ export default class SecretVersionModel extends Model {
   @Column({ type: DataType.DATE, field: "created_at" })
   declare createdAt: Date;
 
-  @BelongsTo(() => OrganizationModel)
-  declare organization: OrganizationModel;
+  @BelongsTo(() => SecretModel, "secretId")
+  declare secret: SecretModel;
 
   toDomain(): SecretVersion {
     return new SecretVersion(

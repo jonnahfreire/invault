@@ -1,11 +1,12 @@
-import { Table, PrimaryKey, Column, DataType, AllowNull, CreatedAt, Model } from "sequelize-typescript";
+import { Table, PrimaryKey, Column, DataType, AllowNull, CreatedAt, Model, HasMany } from "sequelize-typescript";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { KeyEncryptionKey } from "@domain/key/key-encryption-key";
+import DataEncryptionKeyModel from "./data-encryption-key.model";
 
-@Table({ tableName: "kek_metadata", timestamps: true, updatedAt: false, paranoid: true })
+@Table({ tableName: "kek_metadata", timestamps: true, updatedAt: false, indexes: [{ unique: true, fields: ["id"] }] })
 export default class KekMetadataModel extends Model {
   @PrimaryKey
-  @Column({ type: DataType.STRING(36) })
+  @Column({ type: DataType.UUID })
   declare id: string;
 
   @AllowNull(false)
@@ -27,6 +28,9 @@ export default class KekMetadataModel extends Model {
   @CreatedAt
   @Column({ type: DataType.DATE, field: "created_at" })
   declare createdAt: Date;
+
+  @HasMany(() => DataEncryptionKeyModel, { foreignKey: "keyId", as: "deks" })
+  declare deks: DataEncryptionKeyModel[];
 
   toDomain(): KeyEncryptionKey {
     return new KeyEncryptionKey(

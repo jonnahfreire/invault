@@ -1,5 +1,5 @@
-import { AggregateRoot } from "../@common/aggregate-root";
-import { UniqueId } from "../@common/uniqueid";
+import { AggregateRoot } from "../../@common/aggregate-root";
+import { UniqueId } from "../../@common/uniqueid";
 import { KeyMaterial } from "./key-material";
 import { KeyStatus } from "./key-status";
 

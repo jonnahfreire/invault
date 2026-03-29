@@ -1,8 +1,6 @@
-import { Secret, SecretType } from "../../domain/secret/secret";
 import { SecretVersion } from "../../domain/secret/secret-version";
-import { UniqueId } from "../../domain/@common/uniqueid";
 import { EncryptionService } from "./encryption.service";
-import { SecretRepository } from "../../infrastructure/repositories/secret-repository";
+import { SecretRepository } from "../../infrastructure/repositories/secret/secret-repository";
 import { AuditService } from "./audit.service";
 import crypto from "node:crypto";
 
@@ -13,17 +11,14 @@ export class SecretService {
     private masterKey: string,
   ) {}
 
-  async createSecret(name: string, type: SecretType, applicationId: UniqueId, initialData: Record<string, any>, actorId: UniqueId): Promise<Secret> {
-    const secret = Secret.create(name, type, applicationId);
-    await this.secretRepo.save(secret);
-
-    // Create initial version
-    // await this.addSecretVersion(secret.id, initialData, actorId);
-
-    await this.auditService.logEvent(actorId, "secret.created", secret.id, this.hashData({ name, type, tenantId: applicationId.toString() }), undefined);
-
-    return secret;
-  }
+  // async createSecret(name: string, type: SecretType, applicationId: UniqueId, initialData: Record<string, any>, actorId: UniqueId): Promise<Secret> {
+  // const secret = Secret.create(name, type, applicationId);
+  // await this.secretRepo.save(secret);
+  // Create initial version
+  // await this.addSecretVersion(secret.id, initialData, actorId);
+  // await this.auditService.logEvent(actorId, "secret.created", secret.id, this.hashData({ name, type, tenantId: applicationId.toString() }), undefined);
+  // return secret;
+  // }
 
   // async addSecretVersion(secretId: UniqueId, data: Record<string, any>, createdBy: UniqueId): Promise<SecretVersion> {
   //   const secret = await this.secretRepo.findById(secretId);
@@ -65,9 +60,9 @@ export class SecretService {
   //   return new Promise(() => JSON.parse(decrypted) as string);
   // }
 
-  async getSecret(secretId: UniqueId): Promise<Secret | null> {
-    return this.secretRepo.findById(secretId);
-  }
+  // async getSecret(secretId: UniqueId): Promise<Secret | null> {
+  //   return this.secretRepo.findById(secretId);
+  // }
 
   private hashData(data: any): string {
     return crypto.createHash("sha256").update(JSON.stringify(data)).digest("hex");

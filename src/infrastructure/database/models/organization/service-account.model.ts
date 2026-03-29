@@ -1,9 +1,10 @@
 import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, UpdatedAt, ForeignKey, BelongsTo } from "sequelize-typescript";
 import { UniqueId } from "@domain/@common/uniqueid";
-import { ServiceAccount, ServiceAccountStatus } from "@domain/identity/service-account";
+import { ServiceAccount } from "@domain/identity/service-account";
+import { ServiceAccountStatus } from "@domain/identity/enum/service-account-status.enum";
 import ApplicationModel from "./application.model";
 
-@Table({ tableName: "service_account", timestamps: true, paranoid: true })
+@Table({ tableName: "service_account", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
 export default class ServiceAccountModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })
@@ -21,8 +22,8 @@ export default class ServiceAccountModel extends Model {
   declare application: ApplicationModel;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING })
-  declare status: string;
+  @Column({ type: DataType.ENUM(...Object.values(ServiceAccountStatus)) })
+  declare status: ServiceAccountStatus;
 
   @CreatedAt
   @Column({ type: DataType.DATE, field: "created_at" })
@@ -37,7 +38,7 @@ export default class ServiceAccountModel extends Model {
       {
         name: this.name,
         applicationId: UniqueId.create(this.applicationId),
-        status: this.status as ServiceAccountStatus,
+        status: this.status,
         createdAt: this.createdAt,
       },
       UniqueId.create(this.id),

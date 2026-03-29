@@ -1,7 +1,8 @@
 import { UniqueId } from "@domain/@common/uniqueid";
 import { Entity } from "../@common/entity";
-import { SecretType } from "@domain/secret/secret";
-import { KekType } from "./key-derivation";
+import { KekType } from "./enum/kek-type.enum";
+import { SecretType } from "@domain/secret/enum/secret-type.enum";
+import crypto from "node:crypto";
 
 interface KeyEncryptionKeyProps {
   salt: string; // salt used for KEK derivation, stored for reference
@@ -18,7 +19,7 @@ export class KeyEncryptionKey extends Entity<KeyEncryptionKeyProps> {
 
   public static create(type: string, env: string, version?: number): KeyEncryptionKey {
     return new KeyEncryptionKey({
-      salt: UniqueId.create().toString(),
+      salt: crypto.createHash("sha256").update(`${type}-${env}`).digest("hex"),
       type,
       env,
       version: version ?? 1,
@@ -44,17 +45,17 @@ export class KeyEncryptionKey extends Entity<KeyEncryptionKeyProps> {
 
   static fromSecretType(secretType: SecretType): KekType {
     switch (secretType) {
-      case "database":
+      case SecretType.DATABASE:
         return KekType.DATABASE;
-      case "certificate":
+      case SecretType.CERTIFICATE:
         return KekType.CERTIFICATE;
-      case "apikey":
-        return KekType.AIPKEY;
-      case "jwt":
+      case SecretType.APIKEY:
+        return KekType.APIKEY;
+      case SecretType.JWT:
         return KekType.JWT;
-      case "ssh":
+      case SecretType.SSH:
         return KekType.SSH;
-      case "kv":
+      case SecretType.KV:
         return KekType.KV;
       default:
         throw new Error(`Unsupported secret type`);

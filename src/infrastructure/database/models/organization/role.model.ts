@@ -5,7 +5,7 @@ import OrganizationModel from "./organization.model";
 import PermissionModel from "./permission.model";
 import RolePermissionModel from "./role-permission";
 
-@Table({ tableName: "role", timestamps: true, paranoid: true })
+@Table({ tableName: "role", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
 export default class RoleModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })

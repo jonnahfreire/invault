@@ -1,21 +1,20 @@
 import { AggregateRoot } from "../@common/aggregate-root";
 import { UniqueId } from "../@common/uniqueid";
+import { SecretOwner } from "./enum/secret-owner.enum";
+import { SecretStatus } from "./enum/secret-status.enum";
 import { SecretVersion } from "./secret-version";
-
-export type SecretType = "kv" | "database" | "apikey" | "ssh" | "jwt" | "certificate";
-
-export enum SecretStatus {
-  ACTIVE = "active",
-  REVOKED = "revoked",
-}
+import { SecretType } from "./enum/secret-type.enum";
+import CreateSecretException from "./exceptions/secret.exception";
 
 interface SecretProps {
   name: string;
   type: SecretType;
-  applicationId: UniqueId;
-  status: SecretStatus;
-  versions: SecretVersion[];
-  createdAt: Date;
+  ownerType: SecretOwner;
+  ownerId: UniqueId;
+  currentVersionId?: UniqueId;
+  status?: SecretStatus;
+  versions?: SecretVersion[];
+  createdAt?: Date;
   createdBy?: string;
 }
 
@@ -27,15 +26,21 @@ export class Secret extends AggregateRoot<SecretProps> {
     super(props, id);
   }
 
-  public static create(name: string, type: SecretType, applicationId: UniqueId, createdBy?: string) {
+  public static create(props: SecretProps): Secret {
+    if (!props.name || !props.type || !props.ownerId || !props.ownerType) {
+      throw new CreateSecretException("Missing required properties to create a Secret. Required properties: name, type, ownerId, ownerType.");
+    }
+
     return new Secret({
-      name,
-      type,
-      applicationId,
+      name: props.name,
+      type: props.type,
+      ownerId: props.ownerId,
+      currentVersionId: props.currentVersionId,
+      ownerType: props.ownerType || SecretOwner.SYSTEM,
       status: SecretStatus.ACTIVE,
       createdAt: new Date(),
       versions: [],
-      createdBy,
+      createdBy: props.createdBy,
     });
   }
 
@@ -51,14 +56,51 @@ export class Secret extends AggregateRoot<SecretProps> {
     return this.props.status === SecretStatus.REVOKED;
   }
 
-  public addVersion(version: SecretVersion) {
+  public setCurrentVersion(version: SecretVersion) {
+    this.props.currentVersionId = version.id;
+    this.addVersion(version);
+  }
+
+  private addVersion(version: SecretVersion) {
+    if (!this.props.versions) {
+      this.props.versions = [];
+    }
+
     if (!this.versions.some((v) => v.id === version.id)) {
       this.props.versions.push(version);
     }
   }
 
-  get applicationId() {
-    return this.props.applicationId;
+  get name() {
+    return this.props.name;
+  }
+
+  get type() {
+    return this.props.type;
+  }
+
+  get status() {
+    return this.props.status;
+  }
+
+  get ownerId() {
+    return this.props.ownerId;
+  }
+
+  get ownerType() {
+    return this.props.ownerType;
+  }
+
+  get createdAt() {
+    return this.props.createdAt;
+  }
+
+  get createdBy() {
+    return this.props.createdBy;
+  }
+
+  get currentVersionId() {
+    return this.props.currentVersionId;
   }
 
   get versions() {

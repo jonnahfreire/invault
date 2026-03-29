@@ -2,12 +2,7 @@ import { User } from "@domain/identity/user";
 import { AggregateRoot } from "../@common/aggregate-root";
 import { UniqueId } from "../@common/uniqueid";
 import { Application } from "./application";
-
-export enum OrganizationStatus {
-  ACTIVE = "active",
-  SUSPENDED = "suspended",
-  ARCHIVED = "archived",
-}
+import { OrganizationStatus } from "./enum/organization-status.enum";
 
 interface OrganizationProps {
   name: string;

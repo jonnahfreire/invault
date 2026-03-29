@@ -1,13 +1,14 @@
 import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, HasMany, UpdatedAt, BelongsToMany } from "sequelize-typescript";
 import { UniqueId } from "@domain/@common/uniqueid";
-import { Organization, OrganizationStatus } from "@domain/organization/organization";
+import { Organization } from "@domain/organization/organization";
 import { Application } from "@domain/organization/application";
-import { User, UserStatus } from "@domain/identity/user";
+import { OrganizationStatus } from "@domain/organization/enum/organization-status.enum";
+import { User } from "@domain/identity/user";
 import UserModel from "./user.model";
 import ApplicationModel from "./application.model";
 import MembershipModel from "./membership";
 
-@Table({ tableName: "organization", timestamps: true, paranoid: true })
+@Table({ tableName: "organization", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
 export default class OrganizationModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })
@@ -16,8 +17,8 @@ export default class OrganizationModel extends Model {
   @Column({ type: DataType.STRING })
   declare name: string;
 
-  @Column({ type: DataType.STRING })
-  declare status: string;
+  @Column({ type: DataType.ENUM(...Object.values(OrganizationStatus)) })
+  declare status: OrganizationStatus;
 
   @CreatedAt
   @Column({ type: DataType.DATE, field: "created_at" })
@@ -37,7 +38,7 @@ export default class OrganizationModel extends Model {
     return new Organization(
       {
         name: this.name,
-        status: this.status as OrganizationStatus,
+        status: this.status,
         createdAt: this.createdAt,
         applications: this.applications.map(
           (app) =>
@@ -59,7 +60,7 @@ export default class OrganizationModel extends Model {
                 name: user.name,
                 email: user.email,
                 mfaEnabled: user.mfaEnabled,
-                status: user.status as UserStatus,
+                status: user.status,
                 createdAt: user.createdAt,
               },
               UniqueId.create(user.id),

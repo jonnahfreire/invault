@@ -10,7 +10,7 @@ export class AuditService {
     const event = AuditEvent.create(actorId, action, resourceId, currentHash, previousHash, metadata);
     this.events.push(event);
     console.log(`Audit: ${action} on resource ${resourceId.toString()} by ${actorId.toString()}`);
-    return new Promise(() => {});
+    return await Promise.resolve();
   }
 
   getEvents(): AuditEvent[] {

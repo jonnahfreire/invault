@@ -6,7 +6,7 @@ import OrganizationModel from "@infra/database/models/organization/organization.
 
 export default class OrganizationRepository implements IOrganizationRepository {
   async save(entity: Organization, transaction?: any): Promise<void> {
-    await OrganizationModel.create(
+    await OrganizationModel.upsert(
       {
         id: entity.id.toString(),
         name: entity.props.name,

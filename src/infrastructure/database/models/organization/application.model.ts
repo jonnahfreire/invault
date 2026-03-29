@@ -5,7 +5,7 @@ import { Application } from "@domain/organization/application";
 import { UniqueId } from "@domain/@common/uniqueid";
 import ServiceAccountModel from "./service-account.model";
 
-@Table({ tableName: "application", timestamps: true, paranoid: true })
+@Table({ tableName: "application", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
 export default class ApplicationModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })

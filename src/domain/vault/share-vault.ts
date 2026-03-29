@@ -4,8 +4,8 @@ import { SecureBuffer } from "./secure-buffer";
 export class ShareVault {
   private shares: SecureBuffer[] = [];
   private readonly threshold: number;
-  private timeout?: NodeJS.Timeout;
-  private preserveShares: boolean;
+  private readonly timeout?: NodeJS.Timeout;
+  private readonly preserveShares: boolean;
 
   constructor(threshold: number, preserveShares: boolean = true, ttlMs: number = 30000) {
     this.threshold = threshold;

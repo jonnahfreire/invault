@@ -1,11 +1,6 @@
 import { AggregateRoot } from "../@common/aggregate-root";
 import { UniqueId } from "../@common/uniqueid";
-
-export enum UserStatus {
-  ACTIVE = "active",
-  SUSPENDED = "suspended",
-  REVOKED = "revoked",
-}
+import { UserStatus } from "./enum/user-status.enum";
 
 interface UserProps {
   name: string;

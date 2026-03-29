@@ -3,6 +3,7 @@ import { ShareVault } from "../../domain/vault/share-vault";
 import { KeyDerivation } from "@domain/key/key-derivation";
 import { KeyEncryptionKey } from "@domain/key/key-encryption-key";
 import { Environment } from "@application/config/environment";
+import { KekType } from "@domain/key/enum/kek-type.enum";
 
 @Injectable()
 export class KeyManagerService {
@@ -16,11 +17,12 @@ export class KeyManagerService {
     this.vault.addShare(Buffer.from(share, "hex"));
   }
 
-  async deriveKEK(context: KeyEncryptionKey): Promise<Buffer<ArrayBuffer>> {
-    const kek = KeyDerivation.deriveFrom(await this.vault.reconstructRK(), context.salt, context.type, context.env, context.version);
+  async deriveKEK(type: KekType): Promise<{ metadata: KeyEncryptionKey; material: Buffer<ArrayBuffer> }> {
+    const metadata = KeyEncryptionKey.create(type, this.environment.nodeEnv);
+    const material = KeyDerivation.deriveFrom(await this.vault.reconstructRK(), metadata.salt, type, metadata.env, metadata.version);
     this.vault.destroy();
 
-    return kek;
+    return { metadata, material };
   }
 
   generateRandomDEK() {

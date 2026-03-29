@@ -3,7 +3,7 @@ import { KekType } from "@domain/key/key-derivation";
 import { Aes256Wrapper } from "@domain/encryption/aes-256-wrapper";
 import { KeyManagerService } from "@application/services/key-manager.service";
 import { DataEncryptionKey } from "@domain/key/data-encryption-key";
-import { KeyMaterial } from "@domain/key/key-material";
+import { KeyMaterial } from "@domain/key/unused/key-material";
 
 // async function main() {
 //   // Create organization

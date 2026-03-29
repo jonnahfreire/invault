@@ -1,13 +1,5 @@
 import { hkdfSync, randomBytes } from "node:crypto";
-
-export enum KekType {
-  DATABASE = "kek:database",
-  CERTIFICATE = "kek:certificate",
-  AIPKEY = "kek:apikey",
-  JWT = "kek:jwt",
-  SSH = "kek:ssh",
-  KV = "kek:kv",
-}
+import { KekType } from "./enum/kek-type.enum";
 
 export class KeyDerivation {
   private static KEY_LENGTH = 32;

@@ -1,10 +1,6 @@
 import { AggregateRoot } from "../@common/aggregate-root";
 import { UniqueId } from "../@common/uniqueid";
-
-export enum ServiceAccountStatus {
-  ACTIVE = "active",
-  REVOKED = "revoked",
-}
+import { ServiceAccountStatus } from "./enum/service-account-status.enum";
 
 interface ServiceAccountProps {
   name: string;

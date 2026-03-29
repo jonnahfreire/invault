@@ -1,4 +1,3 @@
-import { ISecretRepository } from "@domain/secret/secret.repository";
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { ApiTags, ApiOperation } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
@@ -11,7 +10,6 @@ import ListApplicationSecretsUsecase from "@application/usecases/secret/list-app
 @Controller("secrets")
 export class SecretsController {
   constructor(
-    private readonly secretRepository: ISecretRepository,
     private readonly createSecretUsecase: CreateSecretUsecase,
     private readonly listApplicationSecretsUsecase: ListApplicationSecretsUsecase,
   ) {}

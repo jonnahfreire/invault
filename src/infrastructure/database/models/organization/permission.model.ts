@@ -4,7 +4,7 @@ import { Permission } from "@domain/organization/permission";
 import { UniqueId } from "@domain/@common/uniqueid";
 import RolePermissionModel from "./role-permission";
 
-@Table({ tableName: "permission", timestamps: true, paranoid: true })
+@Table({ tableName: "permission", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
 export default class PermissionModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })

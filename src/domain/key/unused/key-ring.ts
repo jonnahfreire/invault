@@ -1,5 +1,5 @@
-import { AggregateRoot } from "../@common/aggregate-root";
-import { UniqueId } from "../@common/uniqueid";
+import { AggregateRoot } from "../../@common/aggregate-root";
+import { UniqueId } from "../../@common/uniqueid";
 
 interface KeyRingProps {
   tenantId: UniqueId;

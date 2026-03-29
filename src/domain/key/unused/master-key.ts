@@ -1,7 +1,7 @@
-import { AggregateRoot } from "../@common/aggregate-root";
-import { UniqueId } from "../@common/uniqueid";
+import { AggregateRoot } from "../../@common/aggregate-root";
+import { UniqueId } from "../../@common/uniqueid";
 import { KeyStatus } from "./key-status";
-import { VaultKeyAlgorithm } from "./vault-key-algorithm";
+import { VaultKeyAlgorithm } from "../enum/vault-key-algorithm";
 
 interface MasterKeyProps {
   algorithm: VaultKeyAlgorithm;

@@ -1,10 +1,11 @@
 import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, UpdatedAt, BelongsToMany } from "sequelize-typescript";
-import { User, UserStatus } from "@domain/identity/user";
+import { User } from "@domain/identity/user";
 import { UniqueId } from "@domain/@common/uniqueid";
+import { UserStatus } from "@domain/identity/enum/user-status.enum";
 import OrganizationModel from "./organization.model";
 import MembershipModel from "./membership";
 
-@Table({ tableName: "user", timestamps: true, paranoid: true })
+@Table({ tableName: "user", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
 export default class UserModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })
@@ -23,8 +24,8 @@ export default class UserModel extends Model {
   declare mfaEnabled: boolean;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING })
-  declare status: string;
+  @Column({ type: DataType.ENUM(...Object.values(UserStatus)) })
+  declare status: UserStatus;
 
   @CreatedAt
   @Column({ type: DataType.DATE, field: "created_at" })
@@ -43,7 +44,7 @@ export default class UserModel extends Model {
         name: this.name,
         email: this.email,
         mfaEnabled: this.mfaEnabled,
-        status: this.status as UserStatus,
+        status: this.status,
         createdAt: this.createdAt,
       },
       UniqueId.create(this.id),

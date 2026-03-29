@@ -1,5 +1,5 @@
 import { UniqueId } from "@domain/@common/uniqueid";
-import { Secret } from "../../domain/secret/secret";
+import { Secret } from "../../../domain/secret/secret";
 import { ISecretRepository } from "@domain/secret/secret.repository";
 import { SecretVersion } from "@domain/secret/secret-version";
 import SecretModel from "@infra/database/models/secret/secret.model";
@@ -7,26 +7,50 @@ import SecretVersionModel from "@infra/database/models/secret/secret-version.mod
 
 export class SecretRepository implements ISecretRepository {
   async save(entity: Secret, transaction?: any): Promise<void> {
-    await SecretModel.create(
+    await SecretModel.upsert(
       {
         id: entity.id.toString(),
-        name: entity.props.name,
-        type: entity.props.type,
-        applicationId: entity.props.applicationId,
-        status: entity.props.status,
-        createdBy: entity.props.createdBy,
+        name: entity.name,
+        type: entity.type,
+        ownerId: entity.ownerId,
+        ownerType: entity.ownerType,
+        status: entity.status,
+        currentVersionId: entity.currentVersionId,
+        createdBy: entity.createdBy,
       },
       { transaction },
     );
+
+    for (const version of entity.versions) {
+      await SecretVersionModel.upsert(
+        {
+          id: version.id.toString(),
+          secretId: version.secretId.toString(),
+          dekId: version.dekId.toString(),
+          payload: version.payload,
+          version: version.version,
+          createdBy: version.createdBy,
+          expiresAt: version.expiresAt,
+        },
+        { transaction },
+      );
+    }
   }
 
   async findById(id: UniqueId, transaction?: any): Promise<Secret | null> {
-    const secret = await SecretModel.findOne({ where: { id: id.toString() }, transaction });
+    const secret = await SecretModel.findOne({
+      where: { id: id.toString() },
+      include: [{ model: SecretVersionModel, as: "currentVersion" }],
+      transaction,
+    });
     return secret ? secret.toDomain() : null;
   }
 
   async findAll(transaction?: any): Promise<Secret[]> {
-    const secrets = await SecretModel.findAll({ transaction });
+    const secrets = await SecretModel.findAll({
+      include: [{ model: SecretVersionModel, as: "currentVersion" }],
+      transaction,
+    });
     return secrets.map((secret) => secret.toDomain());
   }
 
@@ -34,13 +58,21 @@ export class SecretRepository implements ISecretRepository {
     await SecretModel.destroy({ where: { id: id.toString() }, transaction });
   }
 
-  async findOneByTenantId(tenantId: UniqueId, transaction?: any): Promise<Secret | null> {
-    const secret = await SecretModel.findOne({ where: { tenantId: tenantId.toString() }, transaction });
+  async findOneByOwnerId(ownerId: UniqueId, transaction?: any): Promise<Secret | null> {
+    const secret = await SecretModel.findOne({
+      where: { ownerId: ownerId.toString() },
+      include: [{ model: SecretVersionModel, as: "currentVersion" }],
+      transaction,
+    });
     return secret ? secret.toDomain() : null;
   }
 
-  async findAllByTenantId(tenantId: UniqueId, transaction?: any): Promise<Secret[]> {
-    const secrets = await SecretModel.findAll({ where: { tenantId: tenantId.toString() }, transaction });
+  async findAllByOwnerId(ownerId: UniqueId, transaction?: any): Promise<Secret[]> {
+    const secrets = await SecretModel.findAll({
+      where: { ownerId: ownerId.toString() },
+      include: [{ model: SecretVersionModel, as: "currentVersion" }],
+      transaction,
+    });
     return secrets.map((secret) => secret.toDomain());
   }
 
