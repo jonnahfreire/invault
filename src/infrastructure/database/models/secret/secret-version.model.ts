@@ -12,6 +12,9 @@ export default class SecretVersionModel extends Model {
   @Column({ type: DataType.UUID, field: "secret_id" })
   secretId: string;
 
+  @Column({ type: DataType.UUID, field: "dek_id" })
+  dekId: string;
+
   @AllowNull(false)
   @Column({ type: DataType.STRING(200) })
   declare name: string;
@@ -43,6 +46,7 @@ export default class SecretVersionModel extends Model {
     return new SecretVersion(
       {
         secretId: UniqueId.create(this.secretId),
+        dekId: UniqueId.create(this.dekId),
         version: this.version,
         payload: this.payload,
         createdBy: this.createdBy ? UniqueId.create(this.createdBy) : undefined,

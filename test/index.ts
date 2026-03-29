@@ -1,104 +1,96 @@
 import { Buffer } from "buffer";
 import { KekType } from "@domain/key/key-derivation";
 import { Aes256Wrapper } from "@domain/encryption/aes-256-wrapper";
-import { KeyManager } from "@domain/vault/key-manager";
-import { Organization } from "@domain/organization/organization";
-import { User } from "@domain/identity/user";
-import { AuditService } from "@application/services/audit-service";
-import { AuthService } from "@application/services/auth-service";
-import { SecretService } from "@application/services/secret-service";
-import { Permission, ResourceType, Action } from "@domain/organization/permission";
-import { Role } from "@domain/organization/role";
-import { SecretRepository } from "@infra/repositories/secret-repository";
-import { SecretVersionRepository } from "@infra/repositories/secret-version-repository";
-import { UniqueId } from "@domain/@common/uniqueid";
+import { KeyManagerService } from "@application/services/key-manager.service";
+import { DataEncryptionKey } from "@domain/key/data-encryption-key";
+import { KeyMaterial } from "@domain/key/key-material";
 
-async function main() {
-  // Create organization
-  const organization = Organization.create("Test Organization");
-  console.log("Organization created:", {
-    id: organization.id.toString(),
-    name: organization.props.name,
-  });
+// async function main() {
+//   // Create organization
+//   const organization = Organization.create("Test Organization");
+//   console.log("Organization created:", {
+//     id: organization.id.toString(),
+//     name: organization.props.name,
+//   });
 
-  // Create user
-  const user = User.create("testuser", "test@example.com", organization.id);
-  console.log("User created:", {
-    id: user.id.toString(),
-    username: user.props.name,
-    email: user.props.email,
-  });
+//   // Create user
+//   const user = User.create("testuser", "test@example.com", organization.id);
+//   console.log("User created:", {
+//     id: user.id.toString(),
+//     username: user.props.name,
+//     email: user.props.email,
+//   });
 
-  // Create role with permissions
-  const role = Role.create("Admin", organization.id);
-  const readPermission = Permission.create(ResourceType.SECRET, Action.READ);
-  const writePermission = Permission.create(ResourceType.SECRET, Action.WRITE);
-  role.addPermission(readPermission);
-  role.addPermission(writePermission);
-  console.log("Role created:", {
-    id: role.id.toString(),
-    name: role.props.name,
-    permissions: role.permissions.map((p) => `${p.props.resource}:${p.props.action}`),
-  });
+//   // Create role with permissions
+//   const role = Role.create("Admin", organization.id);
+//   const readPermission = Permission.create(ResourceType.SECRET, Action.READ);
+//   const writePermission = Permission.create(ResourceType.SECRET, Action.WRITE);
+//   role.addPermission(readPermission);
+//   role.addPermission(writePermission);
+//   console.log("Role created:", {
+//     id: role.id.toString(),
+//     name: role.props.name,
+//     permissions: role.permissions.map((p) => `${p.props.resource}:${p.props.action}`),
+//   });
 
-  // Initialize repositories
-  const secretRepo = new SecretRepository();
-  const versionRepo = new SecretVersionRepository();
-  const auditService = new AuditService();
-  const authService = new AuthService();
+//   // Initialize repositories
+//   const secretRepo = new SecretRepository();
+//   const versionRepo = new SecretVersionRepository();
+//   const auditService = new AuditService();
+//   const authService = new AuthService();
 
-  // Register user
-  authService.registerUser(user, "password123");
-  authService.assignRoleToUser(user.id, role);
+//   // Register user
+//   authService.registerUser(user, "password123");
+//   authService.assignRoleToUser(user.id, role);
 
-  console.log("User registered and role assigned");
+//   console.log("User registered and role assigned");
 
-  // Authenticate
-  const authenticatedUser = authService.authenticate("testuser", "password123");
-  if (!authenticatedUser) {
-    throw new Error("Authentication failed");
-  }
-  console.log("User authenticated:", authenticatedUser.props.name);
+//   // Authenticate
+//   const authenticatedUser = authService.authenticate("testuser", "password123");
+//   if (!authenticatedUser) {
+//     throw new Error("Authentication failed");
+//   }
+//   console.log("User authenticated:", authenticatedUser.props.name);
 
-  // Check permissions
-  const canReadSecret = authService.authorize(authenticatedUser.id, ResourceType.SECRET, Action.READ);
-  const canWriteSecret = authService.authorize(authenticatedUser.id, ResourceType.SECRET, Action.WRITE);
-  console.log("Can read secret:", canReadSecret);
-  console.log("Can write secret:", canWriteSecret);
+//   // Check permissions
+//   const canReadSecret = authService.authorize(authenticatedUser.id, ResourceType.SECRET, Action.READ);
+//   const canWriteSecret = authService.authorize(authenticatedUser.id, ResourceType.SECRET, Action.WRITE);
+//   console.log("Can read secret:", canReadSecret);
+//   console.log("Can write secret:", canWriteSecret);
 
-  // Master key for encryption (in production, this should be securely managed)
-  const masterKey = "my-secret-master-key";
+//   // Master key for encryption (in production, this should be securely managed)
+//   const masterKey = "my-secret-master-key";
 
-  // Create secret service
-  const secretService = new SecretService(secretRepo, versionRepo, auditService, masterKey);
+//   // Create secret service
+//   const secretService = new SecretService(secretRepo, versionRepo, auditService, masterKey);
 
-  // Create a secret
-  const applicationId = UniqueId.create();
-  const secret = await secretService.createSecret("database-password", "kv", applicationId, { username: "dbuser", password: "secret123" }, user.id);
-  console.log("Secret created:", {
-    id: secret.id.toString(),
-    name: secret.props.name,
-    type: secret.props.type,
-  });
+//   // Create a secret
+//   const applicationId = UniqueId.create();
+//   const secret = await secretService.createSecret("database-password", "kv", applicationId, { username: "dbuser", password: "secret123" }, user.id);
+//   console.log("Secret created:", {
+//     id: secret.id.toString(),
+//     name: secret.props.name,
+//     type: secret.props.type,
+//   });
 
-  // Retrieve secret data
-  const data = await secretService.getSecretData(secret.id, user.id);
-  console.log("Secret data retrieved:", data);
+//   // Retrieve secret data
+//   const data = await secretService.getSecretData(secret.id, user.id);
+//   console.log("Secret data retrieved:", data);
 
-  // Add another version
-  await secretService.addSecretVersion(secret.id, { username: "dbuser", password: "newsecret456" }, user.id);
-  console.log("New version added");
+//   // Add another version
+//   await secretService.addSecretVersion(secret.id, { username: "dbuser", password: "newsecret456" }, user.id);
+//   console.log("New version added");
 
-  // Retrieve latest data
-  const latestData = await secretService.getSecretData(secret.id, user.id);
-  console.log("Latest secret data:", latestData);
+//   // Retrieve latest data
+//   const latestData = await secretService.getSecretData(secret.id, user.id);
+//   console.log("Latest secret data:", latestData);
 
-  // Show audit events
-  console.log("Audit Events:");
-  auditService.getEvents().forEach((event) => {
-    console.log(`- ${event.props.action} at ${event.props.timestamp.toISOString()}`);
-  });
-}
+//   // Show audit events
+//   console.log("Audit Events:");
+//   auditService.getEvents().forEach((event) => {
+//     console.log(`- ${event.props.action} at ${event.props.timestamp.toISOString()}`);
+//   });
+// }
 
 // main().catch(console.error);
 
@@ -123,9 +115,9 @@ async function main() {
 //   }
 // }
 
-async function encryptionTest() {
+export async function encryptionTest() {
   const threshold = 3;
-  const keyManager = new KeyManager(threshold);
+  const keyManager = new KeyManagerService(threshold);
   keyManager.addShare("4aeaf76d7276def865dc46c4c892d8f20fdc941d9a6ed0aa3fc3dbd34fe1d9e2bcaffc5b6f");
   keyManager.addShare("c630a53185afc7429d9ef6371e949af37aa40573769002423c28ad520aca84cc91a24b0b61");
   keyManager.addShare("e578dd81e158f6379faedcb0a851b326bec9d5c641edda803aa66d360ddd85e375dab3ba46");
@@ -144,7 +136,9 @@ async function encryptionTest() {
     kek: kekV1,
     dek: dek,
   });
-  // console.log("Encrypted Data: ", data);
+  console.log("Encrypted Data: ", data);
+
+  console.log("EncryptionKey Material: ", DataEncryptionKey.create(KeyMaterial.fromEncrypted(JSON.stringify(data.cipherDek))));
 
   const decryptedData = Aes256Wrapper.unwrap({
     data: data.cipherData,

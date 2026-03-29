@@ -14,7 +14,7 @@ export default class SequelizeConnection extends DatabaseConnection implements O
   }
 
   async onModuleInit() {
-    await this.connect();
+    // await this.connect();
   }
 
   async onModuleDestroy() {

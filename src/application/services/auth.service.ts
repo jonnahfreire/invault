@@ -36,7 +36,7 @@ export class AuthService {
   }
 
   authorize(userId: UniqueId, resource: string, action: string): boolean {
-    const permission = Permission.create(resource as any, action as any);
+    const permission = Permission.create({ resource, action });
     return this.hasPermission(userId, permission);
   }
 }

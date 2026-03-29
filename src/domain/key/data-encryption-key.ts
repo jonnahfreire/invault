@@ -1,18 +1,25 @@
+import { UniqueId } from "@domain/@common/uniqueid";
 import { Entity } from "../@common/entity";
-import { UniqueId } from "../@common/uniqueid";
-import { KeyMaterial } from "./key-material";
 
 interface DataEncryptionKeyProps {
   keyId: UniqueId; // KEK usada
-  encryptedMaterial: KeyMaterial; // encrypted with KEK
-  createdAt: Date;
+  iv: string;
+  tag: string;
+  cipher: string;
+  createdAt?: Date;
 }
 
 export class DataEncryptionKey extends Entity<DataEncryptionKeyProps> {
-  public static create(keyId: UniqueId, encryptedMaterial: KeyMaterial): DataEncryptionKey {
+  constructor(props: DataEncryptionKeyProps, id?: UniqueId) {
+    super(props, id);
+  }
+
+  public static create(keyId: UniqueId, iv: string, tag: string, cipher: string): DataEncryptionKey {
     return new DataEncryptionKey({
       keyId,
-      encryptedMaterial,
+      iv,
+      tag,
+      cipher,
       createdAt: new Date(),
     });
   }
@@ -21,7 +28,15 @@ export class DataEncryptionKey extends Entity<DataEncryptionKeyProps> {
     return this.props.keyId;
   }
 
-  public get material(): KeyMaterial {
-    return this.props.encryptedMaterial;
+  public get iv(): string {
+    return this.props.iv;
+  }
+
+  public get tag(): string {
+    return this.props.tag;
+  }
+
+  public get cipher(): string {
+    return this.props.cipher;
   }
 }

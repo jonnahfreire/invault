@@ -12,7 +12,7 @@ export class SwaggerConfiguration {
   constructor(private readonly environment: Environment) {
     this.localhostUrl = `http://localhost:${this.environment.port}`;
     this.apiUrl = this.environment.domainUrl;
-    this.apiKeyHeaderName = this.environment.partnerAuthKeyName;
+    this.apiKeyHeaderName = "apikey"; // this.environment.partnerAuthKeyName;
   }
 
   create(app: INestApplication<any>) {
@@ -22,10 +22,10 @@ export class SwaggerConfiguration {
       prefix: "api/v",
     });
 
-    this.createPartnerConfig(app);
+    this.createInvaultConfig(app);
   }
 
-  private createPartnerConfig(app: INestApplication<any>) {
+  private createInvaultConfig(app: INestApplication<any>) {
     const config = new DocumentBuilder()
       .setTitle("Invault Api")
       .setVersion("1.0")

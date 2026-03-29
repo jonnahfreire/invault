@@ -1,6 +1,10 @@
+import { Environment } from "@application/config/environment";
+import { AuditService } from "@application/services/audit.service";
+import { KeyManagerService } from "@application/services/key-manager.service";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { Aes256Wrapper } from "@domain/encryption/aes-256-wrapper";
-import { IOrganizationRepository } from "@domain/organization/organization.repository";
+import { DataEncryptionKey } from "@domain/key/data-encryption-key";
+import { KeyEncryptionKey } from "@domain/key/key-encryption-key";
 import { Secret, SecretType } from "@domain/secret/secret";
 import { SecretVersion } from "@domain/secret/secret-version";
 import { ISecretRepository } from "@domain/secret/secret.repository";
@@ -13,16 +17,19 @@ interface Input {
   ownerRoleId: string;
   initialData: Record<string, any>;
   actorId?: string;
+  expiresAt?: Date;
 }
 
 @Injectable()
 export default class CreateSecretUsecase {
   constructor(
+    private readonly environment: Environment,
+    private readonly auditService: AuditService,
+    private readonly keyManagerService: KeyManagerService,
     private readonly secretRepository: ISecretRepository,
-    private readonly organizationRepository: IOrganizationRepository,
   ) {}
 
-  async execute(input: Input): Promise<Secret> {
+  async execute(input: Input): Promise<void> {
     const secret = Secret.create(input.name, input.type, UniqueId.create(input.applicationId), input.ownerRoleId);
 
     // await this.addSecretVersion(secret.id, input.initialData, input.actorId);
@@ -31,22 +38,31 @@ export default class CreateSecretUsecase {
     //   engineType: input.engineType,
     // });
 
-    // Create initial version
-    const versionNumber = 1;
-    const payload = JSON.stringify(input.initialData);
-    const encryptedPayload = Aes256Wrapper.wrap({ cipher: payload, dek: Buffer.from(""), kek: Buffer.from("") });
+    const kekMetadata = KeyEncryptionKey.create(KeyEncryptionKey.fromSecretType(input.type), this.environment.nodeEnv);
+    const kek = await this.keyManagerService.deriveKEK(kekMetadata);
+    const dek = this.keyManagerService.generateRandomDEK();
 
-    const version = SecretVersion.create(secret.id, JSON.stringify(encryptedPayload), versionNumber, input.actorId ? UniqueId.create(input.actorId) : undefined);
+    const payload = JSON.stringify(input.initialData);
+    const encryptedPayload = Aes256Wrapper.wrap({ cipher: payload, dek, kek });
+    const dekMaterial = DataEncryptionKey.create(kekMetadata.id, encryptedPayload.cipherDek.iv, encryptedPayload.cipherDek.tag, encryptedPayload.cipherDek.cipher);
+
+    // Create initial version
+    const version = SecretVersion.create({
+      secretId: secret.id,
+      dekId: dekMaterial.id,
+      payload: JSON.stringify(encryptedPayload.cipherData),
+      version: 1,
+      createdBy: input.actorId ? UniqueId.create(input.actorId) : undefined,
+      expiresAt: input.expiresAt,
+    });
+
     secret.addVersion(version);
     await this.secretRepository.save(secret);
 
-    const currentHash = this.hashData(data);
-    const previousVersion = existingVersions[existingVersions.length - 1];
-    const previousHash = previousVersion ? this.hashData(await this.decryptVersion(previousVersion)) : undefined;
+    // const currentHash = this.hashData(data);
+    // const previousVersion = existingVersions[existingVersions.length - 1];
+    // const previousHash = previousVersion ? this.hashData(await this.decryptVersion(previousVersion)) : undefined;
 
-    await this.auditService.logEvent(createdBy, "secret.version.added", secretId, currentHash, previousHash, { version: versionNumber });
-
-    return version;
-    return secret;
+    // await this.auditService.logEvent(createdBy, "secret.version.added", secretId, currentHash, previousHash, { version: versionNumber });
   }
 }

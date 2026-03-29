@@ -1,12 +1,15 @@
+import { ShamirSecretSharing } from "@domain/key/shamir-secret-sharing";
 import { SecureBuffer } from "./secure-buffer";
 
 export class ShareVault {
   private shares: SecureBuffer[] = [];
   private readonly threshold: number;
   private timeout?: NodeJS.Timeout;
+  private preserveShares: boolean;
 
-  constructor(threshold: number, ttlMs: number = 30000) {
+  constructor(threshold: number, preserveShares: boolean = true, ttlMs: number = 30000) {
     this.threshold = threshold;
+    this.preserveShares = preserveShares;
 
     this.timeout = setTimeout(() => {
       this.destroy();
@@ -33,12 +36,18 @@ export class ShareVault {
     return this.shares.map((s) => s.value);
   }
 
-  destroy() {
-    for (const share of this.shares) {
-      share.destroy();
-    }
+  async reconstructRK(): Promise<Buffer<ArrayBuffer>> {
+    return Buffer.from(await ShamirSecretSharing.reconstruct(this.getShares()));
+  }
 
-    this.shares = [];
+  destroy() {
+    if (!this.preserveShares) {
+      for (const share of this.shares) {
+        share.destroy();
+      }
+
+      this.shares = [];
+    }
 
     if (this.timeout) {
       clearTimeout(this.timeout);

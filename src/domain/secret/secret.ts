@@ -2,7 +2,7 @@ import { AggregateRoot } from "../@common/aggregate-root";
 import { UniqueId } from "../@common/uniqueid";
 import { SecretVersion } from "./secret-version";
 
-export type SecretType = "kv" | "database" | "apikey" | "ssh" | "certificate";
+export type SecretType = "kv" | "database" | "apikey" | "ssh" | "jwt" | "certificate";
 
 export enum SecretStatus {
   ACTIVE = "active",

@@ -6,18 +6,21 @@ export class InMemoryRepository<T extends Entity<any>> implements IRepository<T>
   protected readonly entities = new Map<string, T>();
 
   async save(entity: T): Promise<void> {
-    return new Promise(() => this.entities.set(entity.id.toString(), entity));
+    await Promise.resolve(this.entities.set(entity.id.toString(), entity));
   }
 
   async findById(id: UniqueId): Promise<T | null> {
-    return new Promise(() => this.entities.get(id.toString()) || null);
+    const entity = this.entities.get(id.toString());
+    if (!entity) return null;
+
+    return await Promise.resolve(entity);
   }
 
   async findAll(): Promise<T[]> {
-    return new Promise(() => Array.from(this.entities.values()));
+    return await Promise.resolve(Array.from(this.entities.values()));
   }
 
   async delete(id: UniqueId): Promise<void> {
-    return new Promise(() => this.entities.delete(id.toString()));
+    await Promise.resolve(() => this.entities.delete(id.toString()));
   }
 }

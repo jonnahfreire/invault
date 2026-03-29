@@ -3,6 +3,7 @@ import { UniqueId } from "../@common/uniqueid";
 
 interface SecretVersionProps {
   secretId: UniqueId;
+  dekId: UniqueId;
   payload: string;
   version: number;
   expiresAt?: Date;
@@ -18,14 +19,15 @@ export class SecretVersion extends Entity<SecretVersionProps> {
     super(props, id);
   }
 
-  public static create(secretId: UniqueId, payload: string, version: number, createdBy?: UniqueId, expiresAt?: Date) {
+  public static create(props: Omit<SecretVersionProps, "createdAt">): SecretVersion {
     return new SecretVersion({
-      secretId,
-      payload,
-      version,
+      secretId: props.secretId,
+      dekId: props.dekId,
+      payload: props.payload,
+      version: props.version,
       createdAt: new Date(),
-      createdBy,
-      expiresAt,
+      createdBy: props.createdBy,
+      expiresAt: props.expiresAt,
     });
   }
 }

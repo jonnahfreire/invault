@@ -1,6 +1,8 @@
 import { AuditEvent } from "../../domain/audit/audit-event";
 import { UniqueId } from "../../domain/@common/uniqueid";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class AuditService {
   private events: AuditEvent[] = [];
 
