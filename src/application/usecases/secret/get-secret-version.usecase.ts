@@ -1,4 +1,5 @@
 import IllegalArgumentException from "@application/exceptions/illegal-argument.exception";
+import ResourceNotFoundException from "@application/exceptions/resource-not-found.exception";
 import { AuditService } from "@application/services/audit.service";
 import { KeyManagerService } from "@application/services/key-manager.service";
 import { UniqueId } from "@domain/@common/uniqueid";
@@ -27,13 +28,13 @@ export default class GetSecretVersionUseCase {
     if (!secretId) throw new IllegalArgumentException("Secret ID is required");
 
     const secret = await this.secretRepository.findById(UniqueId.create(secretId));
-    if (!secret) throw new IllegalArgumentException("Secret not found");
+    if (!secret) throw new ResourceNotFoundException("Secret not found");
 
     const currentVersion = secret.currentVersion;
-    if (!currentVersion) throw new IllegalArgumentException("Secret version not found");
+    if (!currentVersion) throw new ResourceNotFoundException("Secret version not found");
 
     const dekMaterial = await this.dataEncryptionKeyRepository.findById(currentVersion.dekId);
-    if (!dekMaterial) throw new IllegalArgumentException("Data Encryption Key not found");
+    if (!dekMaterial) throw new ResourceNotFoundException("Data Encryption Key not found");
 
     const derivedKek = await this.keyManagerService.deriveKEK(KeyEncryptionKey.fromSecretType(secret.type), dekMaterial.kekVersion);
     const data = JSON.parse(currentVersion.payload) as Aes256EncryptedData;
