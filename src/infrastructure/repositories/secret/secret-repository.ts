@@ -2,10 +2,12 @@ import { UniqueId } from "@domain/@common/uniqueid";
 import { Secret } from "../../../domain/secret/secret";
 import { ISecretRepository } from "@domain/secret/secret.repository";
 import { SecretVersion } from "@domain/secret/secret-version";
+import { Injectable } from "@nestjs/common";
 import SecretModel from "@infra/database/models/secret/secret.model";
 import SecretVersionModel from "@infra/database/models/secret/secret-version.model";
 
-export class SecretRepository implements ISecretRepository {
+@Injectable()
+export default class SecretRepository implements ISecretRepository {
   async save(entity: Secret, transaction?: any): Promise<void> {
     await SecretModel.upsert(
       {
@@ -79,11 +81,6 @@ export class SecretRepository implements ISecretRepository {
   // SecretVersion Area
   async findVersionBySecretId(secretId: UniqueId, transaction?: any): Promise<SecretVersion | null> {
     const secretVersion = await SecretVersionModel.findOne({ where: { secretId: secretId.toString() }, transaction });
-    return secretVersion ? secretVersion.toDomain() : null;
-  }
-
-  async findLatestVersionBySecretId(secretId: UniqueId, transaction?: any): Promise<SecretVersion | null> {
-    const secretVersion = await SecretVersionModel.findOne({ where: { secretId: secretId.toString() }, transaction, order: [["version", "DESC"]] });
     return secretVersion ? secretVersion.toDomain() : null;
   }
 }

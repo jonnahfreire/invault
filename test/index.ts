@@ -1,9 +1,9 @@
 import { Buffer } from "buffer";
-import { KekType } from "@domain/key/key-derivation";
 import { Aes256Wrapper } from "@domain/encryption/aes-256-wrapper";
 import { KeyManagerService } from "@application/services/key-manager.service";
 import { DataEncryptionKey } from "@domain/key/data-encryption-key";
 import { KeyMaterial } from "@domain/key/unused/key-material";
+import { KekType } from "@domain/key/enum/kek-type.enum";
 
 // async function main() {
 //   // Create organization
@@ -122,7 +122,7 @@ export async function encryptionTest() {
   keyManager.addShare("c630a53185afc7429d9ef6371e949af37aa40573769002423c28ad520aca84cc91a24b0b61");
   keyManager.addShare("e578dd81e158f6379faedcb0a851b326bec9d5c641edda803aa66d360ddd85e375dab3ba46");
 
-  const kekV1 = await keyManager.deriveKEK({ salt: "salt-kek", keytype: KekType.DATABASE, env: "dev", keyVersion: 1 });
+  const kekV1 = await keyManager.deriveKEK(KekType.DATABASE);
   const dek = keyManager.generateRandomDEK();
 
   const data = Aes256Wrapper.wrap({

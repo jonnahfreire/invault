@@ -1,4 +1,5 @@
 import { Aes256DecryptData, Aes256GcmEncrypter } from "./aes-256-gcm-encrypter";
+import crypto from "node:crypto";
 
 type Aes256Wrap = {
   cipher: string;
@@ -25,5 +26,9 @@ export class Aes256Wrapper {
     const decryptedDek = Aes256GcmEncrypter.decrypt(unWrapData.dek);
     const decryptedData = Aes256GcmEncrypter.decrypt({ ...unWrapData.data, key: decryptedDek });
     return decryptedData;
+  }
+
+  static hashData(data: any): string {
+    return crypto.createHash("sha256").update(JSON.stringify(data)).digest("hex");
   }
 }

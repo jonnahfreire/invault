@@ -1,7 +1,7 @@
 import { SecretVersion } from "../../domain/secret/secret-version";
 import { EncryptionService } from "./encryption.service";
-import { SecretRepository } from "../../infrastructure/repositories/secret/secret-repository";
 import { AuditService } from "./audit.service";
+import SecretRepository from "../../infrastructure/repositories/secret/secret-repository";
 import crypto from "node:crypto";
 
 export class SecretService {

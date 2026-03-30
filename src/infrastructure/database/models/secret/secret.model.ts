@@ -68,6 +68,7 @@ export default class SecretModel extends Model {
         createdAt: this.createdAt,
         createdBy: this.createdBy,
         versions: this.versions.map((version) => version.toDomain()),
+        currentVersion: this.currentVersion ? this.currentVersion.toDomain() : undefined,
       },
       UniqueId.create(this.id),
     );

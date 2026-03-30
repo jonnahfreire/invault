@@ -4,6 +4,8 @@ import { Throttle } from "@nestjs/throttler";
 import { CreateSecretDto } from "./dtos/create-secret.dto";
 import CreateSecretUsecase from "@application/usecases/secret/create-secret.usecase";
 import ListApplicationSecretsUsecase from "@application/usecases/secret/list-application-secrets.usecase";
+import GetSecretVersionUseCase from "@application/usecases/secret/get-secret-version.usecase";
+import { UniqueId } from "@domain/@common/uniqueid";
 
 @Throttle({ default: { ttl: 1000, limit: 1 } })
 @ApiTags("Secrets")
@@ -11,6 +13,7 @@ import ListApplicationSecretsUsecase from "@application/usecases/secret/list-app
 export class SecretsController {
   constructor(
     private readonly createSecretUsecase: CreateSecretUsecase,
+    private readonly getSecretUsecase: GetSecretVersionUseCase,
     private readonly listApplicationSecretsUsecase: ListApplicationSecretsUsecase,
   ) {}
 
@@ -19,6 +22,12 @@ export class SecretsController {
   async createSecret(@Body() body: CreateSecretDto) {
     await this.createSecretUsecase.execute(body);
     return { message: "Secret created successfully" };
+  }
+
+  @Get("/:secretId")
+  @ApiOperation({ summary: "Get SecretVersion Data", operationId: "getSecretVersionData" })
+  async getSecretData(@Param("secretId") secretId: string): Promise<ReturnType<GetSecretVersionUseCase["execute"]>> {
+    return await this.getSecretUsecase.execute({ secretId, actorId: UniqueId.create().toString() /* In real implementation, actorId should come from authenticated user context */ });
   }
 
   @Get("/applications/:applicationId/secrets")

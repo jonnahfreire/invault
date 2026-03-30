@@ -7,5 +7,4 @@ export abstract class ISecretRepository extends IRepository<Secret> {
   abstract findOneByOwnerId(ownerId: UniqueId, transaction?: any): Promise<Secret | null>;
   abstract findAllByOwnerId(ownerId: UniqueId, transaction?: any): Promise<Secret[]>;
   abstract findVersionBySecretId(secretId: UniqueId, transaction?: any): Promise<SecretVersion | null>;
-  abstract findLatestVersionBySecretId(secretId: UniqueId, transaction?: any): Promise<SecretVersion | null>;
 }

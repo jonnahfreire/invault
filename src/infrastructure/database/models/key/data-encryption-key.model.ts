@@ -13,6 +13,9 @@ export default class DataEncryptionKeyModel extends Model {
   @Column({ type: DataType.UUID, field: "key_id" })
   declare keyId: string;
 
+  @Column({ type: DataType.INTEGER, field: "kek_version" })
+  declare kekVersion: number;
+
   @BelongsTo(() => KekMetadataModel, { foreignKey: "keyId", as: "kekMetadata" })
   declare kekMetadata: KekMetadataModel;
 
@@ -36,6 +39,7 @@ export default class DataEncryptionKeyModel extends Model {
     return new DataEncryptionKey(
       {
         keyId: UniqueId.create(this.keyId),
+        kekVersion: this.kekVersion,
         iv: this.iv,
         tag: this.tag,
         cipher: this.cipher,

@@ -15,7 +15,7 @@ export class CreateSecretDto {
   @ApiProperty({ example: "application", description: "Type of the owner", type: String, enum: ["user", "application", "organization"] })
   ownerType: SecretOwner;
 
-  @ApiProperty({ example: { apiKey: "supersecretkey" }, description: "Initial data for the secret, structure depends on the secret type" })
+  @ApiProperty({ example: "supersecretapikey", description: "Initial data for the secret, structure depends on the secret type" })
   initialData: Record<string, any>;
 
   @ApiProperty({ example: "d79ce194-92b7-41f9-bd22-59bb4c0b0af1", description: "ID of the actor creating the secret", required: false })

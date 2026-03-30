@@ -14,6 +14,7 @@ interface SecretProps {
   currentVersionId?: UniqueId;
   status?: SecretStatus;
   versions?: SecretVersion[];
+  currentVersion?: SecretVersion;
   createdAt?: Date;
   createdBy?: string;
 }
@@ -40,6 +41,7 @@ export class Secret extends AggregateRoot<SecretProps> {
       status: SecretStatus.ACTIVE,
       createdAt: new Date(),
       versions: [],
+      currentVersion: props.currentVersion,
       createdBy: props.createdBy,
     });
   }
@@ -58,6 +60,7 @@ export class Secret extends AggregateRoot<SecretProps> {
 
   public setCurrentVersion(version: SecretVersion) {
     this.props.currentVersionId = version.id;
+    this.props.currentVersion = version;
     this.addVersion(version);
   }
 
@@ -101,6 +104,10 @@ export class Secret extends AggregateRoot<SecretProps> {
 
   get currentVersionId() {
     return this.props.currentVersionId;
+  }
+
+  get currentVersion() {
+    return this.props.currentVersion;
   }
 
   get versions() {

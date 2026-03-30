@@ -1,7 +1,7 @@
 import { VaultKeyAlgorithm } from "@domain/key/enum/vault-key-algorithm";
 import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 
-type Aes256EncryptedData = {
+export type Aes256EncryptedData = {
   iv: string;
   tag: string;
   cipher: string;

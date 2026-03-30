@@ -17,12 +17,19 @@ export class KeyManagerService {
     this.vault.addShare(Buffer.from(share, "hex"));
   }
 
-  async deriveKEK(type: KekType): Promise<{ metadata: KeyEncryptionKey; material: Buffer<ArrayBuffer> }> {
-    const metadata = KeyEncryptionKey.create(type, this.environment.nodeEnv);
+  async deriveKEK(type: KekType, kekVersion: number): Promise<{ metadata: KeyEncryptionKey; material: Buffer<ArrayBuffer> }> {
+    const metadata = KeyEncryptionKey.create(type, this.environment.nodeEnv, kekVersion);
     const material = KeyDerivation.deriveFrom(await this.vault.reconstructRK(), metadata.salt, type, metadata.env, metadata.version);
     this.vault.destroy();
 
     return { metadata, material };
+  }
+
+  async deriveKekFromMetadata(metadata: KeyEncryptionKey): Promise<Buffer<ArrayBuffer>> {
+    const material = KeyDerivation.deriveFrom(await this.vault.reconstructRK(), metadata.salt, metadata.type, metadata.env, metadata.version);
+    this.vault.destroy();
+
+    return material;
   }
 
   generateRandomDEK() {

@@ -1,9 +1,9 @@
-import { Environment } from "@application/config/environment";
 import { AuditService } from "@application/services/audit.service";
 import { KeyManagerService } from "@application/services/key-manager.service";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { Aes256Wrapper } from "@domain/encryption/aes-256-wrapper";
 import { DataEncryptionKey } from "@domain/key/data-encryption-key";
+import { IDataEncryptionKeyRepository } from "@domain/key/data-encryption-key.repository";
 import { KeyEncryptionKey } from "@domain/key/key-encryption-key";
 import { SecretOwner } from "@domain/secret/enum/secret-owner.enum";
 import { SecretType } from "@domain/secret/enum/secret-type.enum";
@@ -11,7 +11,6 @@ import { Secret } from "@domain/secret/secret";
 import { SecretVersion } from "@domain/secret/secret-version";
 import { ISecretRepository } from "@domain/secret/secret.repository";
 import { Injectable } from "@nestjs/common";
-import crypto from "node:crypto";
 
 interface Input {
   name: string;
@@ -26,10 +25,10 @@ interface Input {
 @Injectable()
 export default class CreateSecretUsecase {
   constructor(
-    private readonly environment: Environment,
     private readonly auditService: AuditService,
     private readonly keyManagerService: KeyManagerService,
     private readonly secretRepository: ISecretRepository,
+    private readonly dataEncryptionKeyRepository: IDataEncryptionKeyRepository,
   ) {}
 
   async execute(input: Input): Promise<void> {
@@ -41,12 +40,11 @@ export default class CreateSecretUsecase {
       createdBy: input.createdBy,
     });
 
-    const derivedKek = await this.keyManagerService.deriveKEK(KeyEncryptionKey.fromSecretType(input.type));
+    const derivedKek = await this.keyManagerService.deriveKEK(KeyEncryptionKey.fromSecretType(input.type), 1 /* Starting with KEK version 1 */);
     const dek = this.keyManagerService.generateRandomDEK();
 
-    const payload = JSON.stringify(input.initialData);
-    const encryptedPayload = Aes256Wrapper.wrap({ cipher: payload, dek, kek: derivedKek.material });
-    const dekMaterial = DataEncryptionKey.create(derivedKek.metadata.id, encryptedPayload.cipherDek.iv, encryptedPayload.cipherDek.tag, encryptedPayload.cipherDek.cipher);
+    const encryptedPayload = Aes256Wrapper.wrap({ cipher: JSON.stringify(input.initialData), dek, kek: derivedKek.material });
+    const dekMaterial = DataEncryptionKey.create(derivedKek.metadata.id, derivedKek.metadata.version, encryptedPayload.cipherDek.iv, encryptedPayload.cipherDek.tag, encryptedPayload.cipherDek.cipher);
 
     // Create initial version
     const version = SecretVersion.create({
@@ -59,24 +57,18 @@ export default class CreateSecretUsecase {
     });
 
     secret.setCurrentVersion(version);
-    //TODO: Save DEK material
-    // ...
-    // TODO: Save KEK metadata if not already saved (can be optimized by caching KEKs in memory with expiration)
-
+    await this.dataEncryptionKeyRepository.save(dekMaterial);
     await this.secretRepository.save(secret);
+
     await this.auditService.logEvent(
       UniqueId.create(input.createdBy),
       "secret.created",
       secret.id,
-      this.hashData({ name: input.name, type: input.type, ownerId: input.ownerId, ownerType: input.ownerType }),
+      Aes256Wrapper.hashData({ name: input.name, type: input.type, ownerId: input.ownerId, ownerType: input.ownerType }),
       undefined,
       {
-        version: version.version,
+        version: secret.currentVersionId,
       },
     );
-  }
-
-  private hashData(data: any): string {
-    return crypto.createHash("sha256").update(JSON.stringify(data)).digest("hex");
   }
 }
