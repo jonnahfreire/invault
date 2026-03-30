@@ -24,16 +24,4 @@ export default class DataEncryptionKeyRepository extends IDataEncryptionKeyRepos
     if (!dekModel) return null;
     return dekModel.toDomain();
   }
-
-  async findAll(transaction?: any): Promise<DataEncryptionKey[]> {
-    const dekModels = await DataEncryptionKeyModel.findAll({ transaction });
-    return dekModels.map((model) => model.toDomain());
-  }
-
-  async delete(id: UniqueId, transaction?: any): Promise<void> {
-    const dekModel = await DataEncryptionKeyModel.findByPk(id.toString(), { transaction });
-    if (dekModel) {
-      await dekModel.destroy({ transaction });
-    }
-  }
 }
