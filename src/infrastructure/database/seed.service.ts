@@ -38,6 +38,7 @@ export default class SeedService {
       Permission.create({ action: Action.UPDATE, resource: "organization" }),
       Permission.create({ action: Action.DELETE, resource: "organization" }),
     ];
-    const organizationOwnerRole = Role.create({ name: "owner", permissions: organizationOwnerPermissions });
+    // TODO: Save organization owner role to database
+    Role.create({ name: "owner", permissions: organizationOwnerPermissions });
   }
 }

@@ -3,6 +3,7 @@ import { UniqueId } from "../@common/uniqueid";
 import { ClientAccount } from "./client-account";
 import { UserStatus } from "./enum/user-status.enum";
 import { CreateUserException } from "./exception/user.exception";
+import { Email } from "./vo/email";
 
 interface UserProps {
   name: string;
@@ -25,7 +26,7 @@ export class User extends AggregateRoot<UserProps> {
 
     return new User({
       name: props.name,
-      email: props.email,
+      email: Email.create(props.email).toString(),
       account: props.account,
       status: UserStatus.ACTIVE,
       createdAt: new Date(),

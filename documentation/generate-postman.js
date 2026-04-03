@@ -20,7 +20,7 @@ converter.convert(
     }
 
     fs.writeFileSync(
-      path.join(__dirname, './Mira-Parceiros.postman_collection.json'),
+      path.join(__dirname, './Invault.postman_collection.json'),
       JSON.stringify(conversionResult.output[0].data, null, 2), 
     );
 

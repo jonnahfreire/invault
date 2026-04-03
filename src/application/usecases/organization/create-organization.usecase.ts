@@ -8,7 +8,7 @@ import { IOrganizationRepository } from "@domain/organization/organization.repos
 import { Permission } from "@domain/organization/permission";
 import { Role } from "@domain/organization/role";
 import { Injectable } from "@nestjs/common";
-import IUnitOfWork from "src/application/unit-of-work/abstract/unit-of-work";
+import IUnitOfWork from "@application/unit-of-work/unit-of-work";
 
 interface Input {
   name: string;
@@ -39,7 +39,8 @@ export default class CreateOrganizationUseCase {
         Permission.create({ action: "delete", resource: "organization" }),
       ];
       const ownerRole = Role.create({ name: "owner", organizationId: organization.id, permissions: ownerPermissions });
-      const membership = Membership.create({ organizationId: organization.id, userId: owner.id, roles: [ownerRole] });
+      // TODO: Save membership to database
+      Membership.create({ organizationId: organization.id, userId: owner.id, roles: [ownerRole] });
       await this.organizationRepository.save(organization, transaction);
     });
   }

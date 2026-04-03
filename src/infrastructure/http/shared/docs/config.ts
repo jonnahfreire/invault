@@ -30,7 +30,7 @@ export class SwaggerConfiguration {
       .setTitle("Invault Api")
       .setVersion("1.0")
       .setDescription("Documentação da Api para integração com o Invault")
-      .addApiKey({ type: "apiKey", name: this.apiKeyHeaderName, in: "header" }, "PartnerKey");
+      .addApiKey({ type: "apiKey", name: this.apiKeyHeaderName, in: "header" }, "ApiKey");
 
     this.configureServerUrls(config);
     const document = SwaggerModule.createDocument(app, config.build(), {

@@ -1,63 +1,86 @@
 # Invault - Secret Management System
 
-A secure secret management system built with TypeScript using Domain-Driven Design (DDD) principles.
+Invault é um sistema de gerenciamento de segredos (secret manager) escrito em TypeScript com arquitetura inspirada em Domain-Driven Design (DDD). A solução prioriza segurança, auditabilidade e isolamento multi-tenant para uso em ambientes corporativos e de infraestrutura.
 
-## Features
+## ✅ Objetivo da Aplicação
 
-- **Secret Management**: Store, version, and retrieve encrypted secrets
-- **Key Management**: Hierarchical key management with rotation support
-- **Authentication & Authorization**: User authentication with role-based permissions
-- **Audit Logging**: Comprehensive audit trail for all operations
-- **Organization Support**: Multi-tenant organization structure
-- **Encryption**: AES-256-GCM encryption for data at rest
+- Armazenar e versionar segredos (credenciais, tokens, certificados, chaves) de forma criptografada
+- Gerenciar chaves de criptografia com suporte a derivação e rotação
+- Autenticar e autorizar usuários em um modelo RBAC (role-based access control)
+- Rastrear ações via trilhas de auditoria (audit logs)
+- Suportar estruturas de organizações e permissões em nível de organização
 
-## Architecture
+## 🏗️ Arquitetura Geral
 
-The system follows DDD principles with the following structure:
+O projeto segue a separação em camadas e DDD:
 
-- **Domain**: Core business entities and rules
-- **Application**: Use case services and business logic
-- **Infrastructure**: Data persistence and external integrations
+- `src/domain/`: modelos do domínio, entidades, value objects, repositórios, regras de negócio e exceções
+- `src/application/`: casos de uso, serviços, orquestração de fluxo de aplicação
+- `src/infrastructure/`: integração com banco de dados (Sequelize), repositórios concretos, seed, HTTP e outros adaptadores
+- `src/modules/`: composição de módulos de dependências (`invault.module.ts`, `app.module.ts`)
+- `src/main.ts`: entrada da aplicação e bootstrapping
 
-## Quick Start
+## 📦 Principais Componentes
 
-1. Install dependencies:
+- `domain/auth`: credenciais, identidade de autenticação
+- `domain/organization`: organização, permissão, função, vínculo, escopo
+- `domain/vault`: cofre e compartilhamento seguro
+- `domain/secret`: segredo, versionamento e repositório
+- `domain/key`: mestre e dados de chave, derivação e criptografia
+- `domain/audit`: evento de auditoria e repositório
+
+- `application/services`: `auth.service.ts`, `key-manager.service.ts`, `secret.service.ts`, `audit.service.ts`, `authorization.service.ts`, `encryption.service.ts`
+- `application/usecases`: implementação de fluxos de negócio para `organization`, `secret`, `user`, `vault`
+- `infrastructure/database`: conexão Sequelize e sementes (`seed.service.ts`)
+- `infrastructure/repositories`: repositórios concretos implementando interfaces de domínio
+
+## 🔐 Segurança e Criptografia
+
+- AES-256-GCM para dados em repouso
+- Gestão de chaves via `KeyEncryptionKey`, `DataEncryptionKey` e `Shamir Secret Sharing`
+- Argon2id para derivação de senha e funções de hashing
+- Exceções de domínio específicas (`environment.exception.ts`, `conflict.exception.ts` etc.)
+
+## ⚙️ Recursos Disponíveis
+
+- CRUD de segredos com versionamento
+- Rotacionamento de chaves e políticas de rotação
+- Autenticação sólida e autorização baseada em funções
+- Suporte a múltiplas organizações/tenants
+- Auditoria detalhada de operações críticas
+
+## 🚀 Como Executar
+
+1. Instalar dependências:
+
 ```bash
 npm install
 ```
 
-2. Run the demo:
+2. Rodar aplicação:
+
 ```bash
-npx tsx src/index.ts
+npm run start:dev
 ```
 
-## Domain Entities
+3. Testes:
 
-- **Organization**: Multi-tenant organizational units
-- **User**: System users with authentication
-- **Role**: Authorization roles with permissions
-- **Secret**: Encrypted secrets with versioning
-- **Key**: Cryptographic keys for encryption
-- **AuditEvent**: Audit log entries
+```bash
+npm test
+```
 
-## Security Features
+## 🛠️ Extensões previstas
 
-- AES-256-GCM encryption
-- Role-based access control (RBAC)
-- Comprehensive audit logging
-- Secret versioning and rotation
-- Secure key management
+- API REST completa (controllers + rotas)
+- UI de gerenciamento (dashboards)
+- Suporte a OAuth / OpenID Connect
+- CLI de administração
+- Operações de migração de segredos entre instâncias
 
-## Development
+## 📄 Licença
 
-This is an initial working version demonstrating core vault functionality. Future enhancements may include:
+MIT
 
-- REST API endpoints
-- Database persistence
-- Key rotation policies
-- Advanced authentication methods
-- UI interface
+---
 
-## License
-
-ISC
+> **Nota**: personalize as seções de ambiente e variáveis (`.env`) conforme seu setup local antes de uso em produção.

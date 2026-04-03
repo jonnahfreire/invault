@@ -4,8 +4,8 @@ import { Permission } from "./permission";
 
 interface RoleProps {
   name: string;
-  organizationId?: UniqueId;
-  parentRoleId?: UniqueId;
+  organizationId?: UniqueId | null;
+  parentRoleId?: UniqueId | null;
   permissions: Permission[];
 }
 

@@ -2,7 +2,7 @@ import { ClientAccount } from "@domain/identity/client-account";
 import { User } from "@domain/identity/user";
 import { Injectable } from "@nestjs/common";
 import IllegalArgumentException from "@application/exceptions/illegal-argument.exception";
-import IUnitOfWork from "@application/unit-of-work/abstract/unit-of-work";
+import IUnitOfWork from "@application/unit-of-work/unit-of-work";
 import Argon2idEncrypter from "@domain/encryption/argon2id-encrypter";
 import IUserRepository from "@domain/identity/user.repository";
 import ArgumentConflictException from "@application/exceptions/conflict.exception";

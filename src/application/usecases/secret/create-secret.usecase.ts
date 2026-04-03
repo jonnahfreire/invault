@@ -1,7 +1,7 @@
 import ArgumentConflictException from "@application/exceptions/conflict.exception";
 import { AuditService } from "@application/services/audit.service";
 import { KeyManagerService } from "@application/services/key-manager.service";
-import IUnitOfWork from "@application/unit-of-work/abstract/unit-of-work";
+import IUnitOfWork from "@application/unit-of-work/unit-of-work";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { Aes256Wrapper } from "@domain/encryption/aes-256-wrapper";
 import { DataEncryptionKey } from "@domain/key/data-encryption-key";

@@ -1,6 +1,6 @@
 export type ConnectionQueryParams = Record<string, any> | any[];
 
-export abstract class DatabaseConnection {
+export abstract class IDatabaseConnection {
   abstract connect(): Promise<any>;
 
   abstract query<T>(sql: string, params?: ConnectionQueryParams, transaction?: any): Promise<T>;

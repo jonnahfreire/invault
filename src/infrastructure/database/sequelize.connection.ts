@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
-import { ConnectionQueryParams, DatabaseConnection } from "../../application/database/database-connection";
+import { ConnectionQueryParams, IDatabaseConnection } from "../../application/database/database-connection";
 import { Sequelize } from "sequelize-typescript";
 import { Environment } from "src/application/config/environment";
 import { DATE, QueryTypes, Transaction } from "sequelize";
@@ -7,7 +7,7 @@ import { logger } from "../../application/config/logger";
 import SeedService from "./seed.service";
 
 @Injectable()
-export default class SequelizeConnection extends DatabaseConnection implements OnModuleInit, OnModuleDestroy {
+export default class SequelizeConnection extends IDatabaseConnection implements OnModuleInit, OnModuleDestroy {
   private sequelize!: Sequelize;
 
   constructor(private readonly environment: Environment) {

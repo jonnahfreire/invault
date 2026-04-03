@@ -2,7 +2,6 @@
   "compilerOptions": {
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "resolvePackageJsonExports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "declaration": true,
@@ -10,17 +9,19 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
+    "target": "esnext",
     "sourceMap": true,
-    "outDir": "./dist",
     "baseUrl": "./",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": ["jest", "node"],
     "paths": {
       "@application/*": ["src/application/*"],
       "@domain/*": ["src/domain/*"],
@@ -28,5 +29,12 @@
       "@usecases/*": ["src/application/usecases/*"],
       "@repositories/*": ["src/infrastructure/repositories/*"],
     }
-  }
+  },
+  "include": [
+    "src/**/*",
+    "@types/express/index.d.ts",
+    "@types/types.d.ts"
+  ],
+  "files": ["@types/express/index.d.ts", "@types/types.d.ts"],
+  "types": ["node", "jest"]
 }
