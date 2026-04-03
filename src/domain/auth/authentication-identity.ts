@@ -1,14 +1,14 @@
-import { AggregateRoot } from "@domain/@common/aggregate-root";
+import { Entity } from "@domain/@common/entity";
 import { UniqueId } from "@domain/@common/uniqueid";
 
 export enum AuthSubject {
-  USER = "user",
+  CLIENT = "client-account",
   SERVICE_ACCOUNT = "service-account",
 }
 
 export enum AuthMethodType {
   PASSWORD = "password",
-  API_KEY = "api_key",
+  APIKEY = "apikey",
   OAUTH = "oauth",
   JWT = "jwt",
   CERTIFICATE = "certificate",
@@ -22,7 +22,7 @@ interface AuthenticationIdentityProps {
   createdAt: Date;
 }
 
-export class AuthenticationIdentity extends AggregateRoot<AuthenticationIdentityProps> {
+export class AuthenticationIdentity extends Entity<AuthenticationIdentityProps> {
   constructor(
     readonly props: AuthenticationIdentityProps,
     id?: UniqueId,

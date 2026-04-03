@@ -1,11 +1,12 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, UpdatedAt, BelongsToMany } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, UpdatedAt, BelongsToMany, DeletedAt, HasOne } from "sequelize-typescript";
 import { User } from "@domain/identity/user";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { UserStatus } from "@domain/identity/enum/user-status.enum";
 import OrganizationModel from "./organization.model";
-import MembershipModel from "./membership";
+import MembershipModel from "./membership.model";
+import ClientAccountModel from "./client-account.model";
 
-@Table({ tableName: "user", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
+@Table({ tableName: "users", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id", "email"] }] })
 export default class UserModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })
@@ -16,12 +17,8 @@ export default class UserModel extends Model {
   declare name: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING(100) })
+  @Column({ type: DataType.STRING(100), unique: true })
   declare email: string;
-
-  @AllowNull(false)
-  @Column({ type: DataType.BOOLEAN, field: "mfa_enabled", defaultValue: false })
-  declare mfaEnabled: boolean;
 
   @AllowNull(false)
   @Column({ type: DataType.ENUM(...Object.values(UserStatus)) })
@@ -35,16 +32,23 @@ export default class UserModel extends Model {
   @Column({ type: DataType.DATE, field: "updated_at" })
   declare updatedAt: Date;
 
+  @DeletedAt
+  @Column({ type: DataType.DATE, field: "deleted_at" })
+  declare deletedAt: Date;
+
   @BelongsToMany(() => OrganizationModel, () => MembershipModel)
   declare organizations: OrganizationModel[];
+
+  @HasOne(() => ClientAccountModel, "user_id")
+  declare account: ClientAccountModel;
 
   toDomain(): User {
     return new User(
       {
         name: this.name,
         email: this.email,
-        mfaEnabled: this.mfaEnabled,
         status: this.status,
+        account: this.account.toDomain(),
         createdAt: this.createdAt,
       },
       UniqueId.create(this.id),

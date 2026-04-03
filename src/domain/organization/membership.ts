@@ -21,6 +21,7 @@ export class Membership extends Entity<MembershipProps> {
   public static create(data: Omit<MembershipProps, "active">) {
     return new Membership({
       ...data,
+      joinedAt: new Date(),
       active: true,
       roles: [],
     });

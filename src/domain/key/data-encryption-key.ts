@@ -2,7 +2,6 @@ import { UniqueId } from "@domain/@common/uniqueid";
 import { Entity } from "../@common/entity";
 
 interface DataEncryptionKeyProps {
-  keyId: UniqueId;
   kekVersion: number;
   iv: string;
   tag: string;
@@ -15,19 +14,14 @@ export class DataEncryptionKey extends Entity<DataEncryptionKeyProps> {
     super(props, id);
   }
 
-  public static create(keyId: UniqueId, kekVersion: number, iv: string, tag: string, cipher: string): DataEncryptionKey {
+  public static create(kekVersion: number, iv: string, tag: string, cipher: string): DataEncryptionKey {
     return new DataEncryptionKey({
-      keyId,
       kekVersion,
       iv,
       tag,
       cipher,
       createdAt: new Date(),
     });
-  }
-
-  public get keyId(): UniqueId {
-    return this.props.keyId;
   }
 
   public get kekVersion(): number {

@@ -2,15 +2,18 @@ import { UniqueId } from "@domain/@common/uniqueid";
 import { Entity } from "../@common/entity";
 
 export enum ResourceType {
+  SYSTEM = "system",
+  ORGANIZATION = "organization",
   SECRET = "secret",
-  TENANT = "tenant",
+  APPLICATION = "application",
   ROLE = "role",
   USER = "user",
 }
 
 export enum Action {
   READ = "read",
-  WRITE = "write",
+  CREATE = "create",
+  UPDATE = "update",
   DELETE = "delete",
   ROTATE = "rotate",
   GRANT = "grant",
@@ -35,5 +38,14 @@ export class Permission extends Entity<PermissionProps> {
 
   public equals(permission: Permission): boolean {
     return this.props.resource === permission.props.resource && this.props.action === permission.props.action;
+  }
+
+  public organizationOwnerDefaults() {
+    return [
+      Permission.create({ action: Action.READ, resource: "organization" }),
+      Permission.create({ action: Action.CREATE, resource: "organization" }),
+      Permission.create({ action: Action.UPDATE, resource: "organization" }),
+      Permission.create({ action: Action.DELETE, resource: "organization" }),
+    ];
   }
 }

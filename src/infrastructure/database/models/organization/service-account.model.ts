@@ -1,10 +1,10 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, UpdatedAt, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, UpdatedAt, ForeignKey, BelongsTo, DeletedAt } from "sequelize-typescript";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { ServiceAccount } from "@domain/identity/service-account";
 import { ServiceAccountStatus } from "@domain/identity/enum/service-account-status.enum";
 import ApplicationModel from "./application.model";
 
-@Table({ tableName: "service_account", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
+@Table({ tableName: "service_accounts", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id", "application_id"] }] })
 export default class ServiceAccountModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })
@@ -15,7 +15,7 @@ export default class ServiceAccountModel extends Model {
   declare name: string;
 
   @ForeignKey(() => ApplicationModel)
-  @Column({ type: DataType.UUID })
+  @Column({ type: DataType.UUID, field: "application_id" })
   declare applicationId: string;
 
   @BelongsTo(() => ApplicationModel)
@@ -32,6 +32,10 @@ export default class ServiceAccountModel extends Model {
   @UpdatedAt
   @Column({ type: DataType.DATE, field: "updated_at" })
   declare updatedAt: Date;
+
+  @DeletedAt
+  @Column({ type: DataType.DATE, field: "deleted_at" })
+  declare deletedAt: Date;
 
   toDomain(): ServiceAccount {
     return new ServiceAccount(

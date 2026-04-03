@@ -5,9 +5,12 @@ import { DomainExceptionFilter } from "@infra/http/shared/filters/domain-excepti
 import { APP_FILTER, APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard } from "@nestjs/throttler";
 import { SecretsController } from "@infra/http/vault/controllers/secrets.controller";
+import { VaultController } from "@infra/http/vault/controllers/vault.controller";
+import { OrganizationController } from "@infra/http/vault/controllers/organization.controller";
+import { UserController } from "@infra/http/vault/controllers/user.controller";
 
 export const HTTP_PROVIDERS = {
-  CONTROLLERS: [WelcomeController, SecretsController],
+  CONTROLLERS: [WelcomeController, VaultController, UserController, OrganizationController, SecretsController],
   FILTERS: [
     { provide: APP_FILTER, useClass: DomainExceptionFilter },
     { provide: APP_FILTER, useClass: ApplicationExceptionFilter },

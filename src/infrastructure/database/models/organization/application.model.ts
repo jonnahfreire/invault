@@ -1,11 +1,10 @@
-import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, BelongsTo, UpdatedAt, HasMany, ForeignKey } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, BelongsTo, UpdatedAt, HasMany, ForeignKey, DeletedAt } from "sequelize-typescript";
 import OrganizationModel from "./organization.model";
-import SecretModel from "../secret/secret.model";
 import { Application } from "@domain/organization/application";
 import { UniqueId } from "@domain/@common/uniqueid";
 import ServiceAccountModel from "./service-account.model";
 
-@Table({ tableName: "application", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
+@Table({ tableName: "applications", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id", "organization_id"] }] })
 export default class ApplicationModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })
@@ -23,14 +22,16 @@ export default class ApplicationModel extends Model {
   @Column({ type: DataType.DATE, field: "updated_at" })
   declare updatedAt: Date;
 
+  @DeletedAt
+  @Column({ type: DataType.DATE, field: "deleted_at" })
+  declare deletedAt: Date;
+
   @ForeignKey(() => OrganizationModel)
+  @Column({ type: DataType.UUID, field: "organization_id" })
   declare organizationId: string;
 
   @BelongsTo(() => OrganizationModel, "organizationId")
   declare organization: OrganizationModel;
-
-  @HasMany(() => SecretModel)
-  declare secrets: SecretModel[];
 
   @HasMany(() => ServiceAccountModel)
   declare serviceAccounts: ServiceAccountModel[];
@@ -41,8 +42,7 @@ export default class ApplicationModel extends Model {
         name: this.name,
         organizationId: UniqueId.create(this.organizationId),
         createdAt: this.createdAt,
-        secrets: this.secrets.map((secret) => secret.toDomain()),
-        serviceAccounts: this.serviceAccounts.map((account) => account.toDomain()),
+        serviceAccounts: this.serviceAccounts ? this.serviceAccounts.map((account) => account.toDomain()) : [],
       },
       UniqueId.create(this.id),
     );

@@ -1,13 +1,11 @@
 import { Entity } from "@domain/@common/entity";
 import { UniqueId } from "../@common/uniqueid";
-import { Secret } from "@domain/secret/secret";
 import { ServiceAccount } from "@domain/identity/service-account";
 
 interface ApplicationProps {
   name: string;
   organizationId: UniqueId;
   createdAt: Date;
-  secrets: Secret[];
   serviceAccounts: ServiceAccount[];
 }
 
@@ -23,7 +21,6 @@ export class Application extends Entity<ApplicationProps> {
     return new Application({
       name,
       organizationId,
-      secrets: [],
       serviceAccounts: [],
       createdAt: new Date(),
     });

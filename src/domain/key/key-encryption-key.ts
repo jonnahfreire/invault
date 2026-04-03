@@ -3,6 +3,7 @@ import { Entity } from "../@common/entity";
 import { KekType } from "./enum/kek-type.enum";
 import { SecretType } from "@domain/secret/enum/secret-type.enum";
 import crypto from "node:crypto";
+import CreateKekException from "./exceptions/kek.exception";
 
 interface KeyEncryptionKeyProps {
   salt: string; // salt used for KEK derivation, stored for reference
@@ -51,14 +52,12 @@ export class KeyEncryptionKey extends Entity<KeyEncryptionKeyProps> {
         return KekType.CERTIFICATE;
       case SecretType.APIKEY:
         return KekType.APIKEY;
-      case SecretType.JWT:
-        return KekType.JWT;
       case SecretType.SSH:
         return KekType.SSH;
       case SecretType.KV:
         return KekType.KV;
       default:
-        throw new Error(`Unsupported secret type`);
+        throw new CreateKekException(`Unsupported Type '${(secretType as string).toString()}'`);
     }
   }
 }

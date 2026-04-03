@@ -1,5 +1,5 @@
 import { Table, Model, ForeignKey, Column, DataType, BelongsTo } from "sequelize-typescript";
-import MembershipModel from "./membership";
+import MembershipModel from "./membership.model";
 import RoleModel from "./role.model";
 
 @Table({

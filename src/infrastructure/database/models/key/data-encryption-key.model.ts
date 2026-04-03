@@ -1,23 +1,19 @@
-import { Table, PrimaryKey, Column, DataType, AllowNull, CreatedAt, Model, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Table, PrimaryKey, Column, DataType, AllowNull, CreatedAt, Model, BelongsTo } from "sequelize-typescript";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { DataEncryptionKey } from "@domain/key/data-encryption-key";
-import KekMetadataModel from "./kek-metadata.model";
+import SecretVersionModel from "../secret/secret-version.model";
 
-@Table({ tableName: "data_encryption_key", timestamps: true, updatedAt: false, indexes: [{ unique: true, fields: ["id", "keyId"] }] })
+@Table({ tableName: "data_encryption_keys", timestamps: true, updatedAt: false, indexes: [{ unique: true, fields: ["id"] }] })
 export default class DataEncryptionKeyModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })
   declare id: string;
 
-  @ForeignKey(() => KekMetadataModel)
-  @Column({ type: DataType.UUID, field: "key_id" })
-  declare keyId: string;
-
   @Column({ type: DataType.INTEGER, field: "kek_version" })
   declare kekVersion: number;
 
-  @BelongsTo(() => KekMetadataModel, { foreignKey: "keyId", as: "kekMetadata" })
-  declare kekMetadata: KekMetadataModel;
+  @BelongsTo(() => SecretVersionModel, { foreignKey: "id", as: "secretVersion" })
+  declare secretVersion: SecretVersionModel;
 
   @AllowNull(false)
   @Column({ type: DataType.TEXT })
@@ -38,7 +34,6 @@ export default class DataEncryptionKeyModel extends Model {
   toDomain(): DataEncryptionKey {
     return new DataEncryptionKey(
       {
-        keyId: UniqueId.create(this.keyId),
         kekVersion: this.kekVersion,
         iv: this.iv,
         tag: this.tag,

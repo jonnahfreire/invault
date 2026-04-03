@@ -1,13 +1,15 @@
 import { AggregateRoot } from "../@common/aggregate-root";
 import { UniqueId } from "../@common/uniqueid";
+import { ClientAccount } from "./client-account";
 import { UserStatus } from "./enum/user-status.enum";
+import { CreateUserException } from "./exception/user.exception";
 
 interface UserProps {
   name: string;
   email: string;
-  mfaEnabled: boolean;
-  status: UserStatus;
-  createdAt: Date;
+  account?: ClientAccount;
+  status?: UserStatus;
+  createdAt?: Date;
 }
 
 export class User extends AggregateRoot<UserProps> {
@@ -18,18 +20,40 @@ export class User extends AggregateRoot<UserProps> {
     super(props, id);
   }
 
-  public static create(username: string, email: string): User {
+  public static create(props: UserProps): User {
+    if (!props.name || !props.email) throw new CreateUserException("Required fields is missing to create user");
+
     return new User({
-      name: username,
-      email,
-      mfaEnabled: false,
+      name: props.name,
+      email: props.email,
+      account: props.account,
       status: UserStatus.ACTIVE,
       createdAt: new Date(),
     });
   }
 
-  public enableMFA() {
-    this.props.mfaEnabled = true;
+  get name() {
+    return this.props.name;
+  }
+
+  get email() {
+    return this.props.email;
+  }
+
+  get status() {
+    return this.props.status;
+  }
+
+  get account() {
+    return this.props.account;
+  }
+
+  get createdAt() {
+    return this.props.createdAt;
+  }
+
+  public setAccount(account: ClientAccount) {
+    this.props.account = account;
   }
 
   public suspend() {

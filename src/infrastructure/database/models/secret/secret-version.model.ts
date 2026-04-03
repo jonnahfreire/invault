@@ -2,12 +2,13 @@ import { Table, PrimaryKey, Column, DataType, AllowNull, CreatedAt, Model, Belon
 import { SecretVersion } from "@domain/secret/secret-version";
 import { UniqueId } from "@domain/@common/uniqueid";
 import SecretModel from "./secret.model";
+import DataEncryptionKeyModel from "../key/data-encryption-key.model";
 
 @Table({
-  tableName: "secret_version",
+  tableName: "secret_versions",
   timestamps: true,
   updatedAt: false,
-  paranoid: true,
+  deletedAt: false,
   indexes: [{ unique: true, fields: ["secret_id", "version"] }, { fields: ["secret_id", "created_at"] }],
 })
 export default class SecretVersionModel extends Model {
@@ -17,10 +18,11 @@ export default class SecretVersionModel extends Model {
 
   @ForeignKey(() => SecretModel)
   @Column({ type: DataType.UUID, field: "secret_id" })
-  secretId: string;
+  declare secretId: string;
 
+  @ForeignKey(() => DataEncryptionKeyModel)
   @Column({ type: DataType.UUID, field: "dek_id" })
-  dekId: string;
+  declare dekId: string;
 
   @AllowNull(false)
   @Column({ type: DataType.INTEGER })
@@ -28,7 +30,7 @@ export default class SecretVersionModel extends Model {
 
   @AllowNull(false)
   @Column({ type: DataType.TEXT })
-  payload: string;
+  declare payload: string;
 
   @AllowNull(true)
   @Column({ type: DataType.UUID, field: "created_by" })
@@ -36,14 +38,17 @@ export default class SecretVersionModel extends Model {
 
   @AllowNull(true)
   @Column({ type: DataType.DATE, field: "expires_at" })
-  expiresAt?: Date;
+  declare expiresAt?: Date;
 
   @CreatedAt
   @Column({ type: DataType.DATE, field: "created_at" })
   declare createdAt: Date;
 
-  @BelongsTo(() => SecretModel, "secretId")
+  @BelongsTo(() => SecretModel, { foreignKey: "secret_id" })
   declare secret: SecretModel;
+
+  @BelongsTo(() => DataEncryptionKeyModel, { foreignKey: "dek_id" })
+  declare dek: DataEncryptionKeyModel;
 
   toDomain(): SecretVersion {
     return new SecretVersion(

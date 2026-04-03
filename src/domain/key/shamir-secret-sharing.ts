@@ -1,10 +1,11 @@
 import { combine, split } from "shamir-secret-sharing";
+import CreateShamirException from "./exceptions/shamir.exception";
 
 export class ShamirSecretSharing {
   static async create(secret: string, threshold: number, shareCount: number): Promise<Uint8Array<ArrayBufferLike>[]> {
-    if (!secret || !secret.length) throw new Error("Secret must not be null or empty");
-    if (!shareCount) throw new Error("ShareCount must not be null or zero");
-    if (!threshold) throw new Error("Threshold must not be null or zero");
+    if (!secret || !secret.length) throw new CreateShamirException("Secret must not be null or empty");
+    if (!shareCount) throw new CreateShamirException("ShareCount must not be null or zero");
+    if (!threshold) throw new CreateShamirException("Threshold must not be null or zero");
 
     const bsecret = Buffer.from(secret);
     const uint8Secret = new Uint8Array(bsecret.buffer, bsecret.byteOffset, bsecret.byteLength);
@@ -13,7 +14,7 @@ export class ShamirSecretSharing {
   }
 
   static async reconstruct(shares: Buffer[]): Promise<string> {
-    if (!shares.length) throw new Error("Shares are required");
+    if (!shares.length) throw new CreateShamirException("Shares are required");
 
     const sharesToCombine: Uint8Array<ArrayBufferLike>[] = [];
     for (const sh of shares) {

@@ -3,6 +3,7 @@ import { AggregateRoot } from "../@common/aggregate-root";
 import { UniqueId } from "../@common/uniqueid";
 import { Application } from "./application";
 import { OrganizationStatus } from "./enum/organization-status.enum";
+import CreateOrganizationException from "./exceptions/organization.exception";
 
 interface OrganizationProps {
   name: string;
@@ -21,6 +22,8 @@ export class Organization extends AggregateRoot<OrganizationProps> {
   }
 
   public static create(name: string) {
+    if (!name || !name.length) throw new CreateOrganizationException("Organization name must not be null or empty");
+
     return new Organization({
       name,
       status: OrganizationStatus.ACTIVE,
@@ -28,6 +31,10 @@ export class Organization extends AggregateRoot<OrganizationProps> {
       users: [],
       createdAt: new Date(),
     });
+  }
+
+  public activate() {
+    this.props.status = OrganizationStatus.ACTIVE;
   }
 
   public suspend() {

@@ -1,4 +1,4 @@
-import { Table, PrimaryKey, Column, DataType, AllowNull, CreatedAt, Model, HasMany, BelongsTo, ForeignKey } from "sequelize-typescript";
+import { Table, PrimaryKey, Column, DataType, AllowNull, CreatedAt, Model, HasMany, DeletedAt } from "sequelize-typescript";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { SecretOwner } from "@domain/secret/enum/secret-owner.enum";
 import { SecretStatus } from "@domain/secret/enum/secret-status.enum";
@@ -7,7 +7,7 @@ import { Secret } from "@domain/secret/secret";
 import SecretVersionModel from "./secret-version.model";
 
 @Table({
-  tableName: "secret",
+  tableName: "secrets",
   timestamps: true,
   updatedAt: false,
   paranoid: true,
@@ -19,16 +19,15 @@ export default class SecretModel extends Model {
 
   @AllowNull(false)
   @Column({ type: DataType.UUID, field: "owner_id" })
-  ownerId: string;
+  declare ownerId: string;
 
   @AllowNull(true)
-  @ForeignKey(() => SecretVersionModel)
   @Column({ type: DataType.UUID, field: "current_version_id" })
-  currentVersionId: string | null;
+  declare currentVersionId: string;
 
   @AllowNull(false)
   @Column({ type: DataType.ENUM(...Object.values(SecretOwner)), field: "owner_type" })
-  ownerType: SecretOwner;
+  declare ownerType: SecretOwner;
 
   @AllowNull(false)
   @Column({ type: DataType.STRING(200) })
@@ -50,11 +49,12 @@ export default class SecretModel extends Model {
   @Column({ type: DataType.DATE, field: "created_at" })
   declare createdAt: Date;
 
-  @HasMany(() => SecretVersionModel, { foreignKey: "secretId", as: "versions" })
-  declare versions: SecretVersionModel[];
+  @DeletedAt
+  @Column({ type: DataType.DATE, field: "deleted_at" })
+  declare deletedAt: Date;
 
-  @BelongsTo(() => SecretVersionModel, { foreignKey: "currentVersionId", as: "currentVersion" })
-  declare currentVersion: SecretVersionModel;
+  @HasMany(() => SecretVersionModel, { foreignKey: "secret_id", as: "versions" })
+  declare versions: SecretVersionModel[];
 
   toDomain(): Secret {
     return new Secret(
@@ -63,12 +63,11 @@ export default class SecretModel extends Model {
         type: this.type as SecretType,
         status: this.status,
         ownerId: UniqueId.create(this.ownerId),
-        currentVersionId: this.currentVersionId ? UniqueId.create(this.currentVersionId) : undefined,
         ownerType: this.ownerType,
         createdAt: this.createdAt,
         createdBy: this.createdBy,
-        versions: this.versions.map((version) => version.toDomain()),
-        currentVersion: this.currentVersion ? this.currentVersion.toDomain() : undefined,
+        versions: this.versions ? this.versions.map((version) => version.toDomain()) : [],
+        currentVersionId: this.currentVersionId ? UniqueId.create(this.currentVersionId) : null,
       },
       UniqueId.create(this.id),
     );

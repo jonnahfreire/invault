@@ -7,13 +7,13 @@ import DataEncryptionKeyModel from "@infra/database/models/key/data-encryption-k
 @Injectable()
 export default class DataEncryptionKeyRepository extends IDataEncryptionKeyRepository {
   async save(entity: DataEncryptionKey, transaction?: any): Promise<void> {
-    await DataEncryptionKeyModel.create(
+    await DataEncryptionKeyModel.upsert(
       {
         id: entity.id.toString(),
-        keyId: entity.keyId.toString(),
         iv: entity.iv,
         tag: entity.tag,
         cipher: entity.cipher,
+        kekVersion: entity.kekVersion,
       },
       { transaction },
     );

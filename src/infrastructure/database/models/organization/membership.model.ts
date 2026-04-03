@@ -1,17 +1,18 @@
 import { Table, Model, ForeignKey, Column, DataType, CreatedAt, UpdatedAt, PrimaryKey, BelongsToMany, BelongsTo } from "sequelize-typescript";
 import OrganizationModel from "./organization.model";
 import UserModel from "./user.model";
-import MembershipRoleModel from "./membership-role";
+import MembershipRoleModel from "./membership-role.model";
 import RoleModel from "./role.model";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { Membership } from "@domain/organization/membership";
 
 @Table({
-  tableName: "membership",
+  tableName: "memberships",
   freezeTableName: true,
   timestamps: true,
+  deletedAt: false,
   paranoid: true,
-  indexes: [{ unique: true, fields: ["id"] }],
+  indexes: [{ unique: true, fields: ["id", "user_id", "organization_id"] }],
 })
 export default class MembershipModel extends Model {
   @PrimaryKey
@@ -19,14 +20,14 @@ export default class MembershipModel extends Model {
   declare id: string;
 
   @ForeignKey(() => UserModel)
-  @Column({ type: DataType.UUID })
+  @Column({ type: DataType.UUID, field: "user_id" })
   declare userId: string;
 
   @BelongsTo(() => UserModel, "userId")
   declare user: UserModel;
 
   @ForeignKey(() => OrganizationModel)
-  @Column({ type: DataType.UUID })
+  @Column({ type: DataType.UUID, field: "organization_id" })
   declare organizationId: string;
 
   @BelongsTo(() => OrganizationModel, "organizationId")

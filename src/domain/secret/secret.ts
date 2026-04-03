@@ -11,10 +11,9 @@ interface SecretProps {
   type: SecretType;
   ownerType: SecretOwner;
   ownerId: UniqueId;
-  currentVersionId?: UniqueId;
+  currentVersionId?: UniqueId | null;
   status?: SecretStatus;
   versions?: SecretVersion[];
-  currentVersion?: SecretVersion;
   createdAt?: Date;
   createdBy?: string;
 }
@@ -31,6 +30,12 @@ export class Secret extends AggregateRoot<SecretProps> {
     if (!props.name || !props.type || !props.ownerId || !props.ownerType) {
       throw new CreateSecretException("Missing required properties to create a Secret. Required properties: name, type, ownerId, ownerType.");
     }
+    if (props.type === SecretType.APIKEY && props.ownerType === SecretOwner.USER) {
+      throw new CreateSecretException("API Key secrets cannot be owned by users. Please choose a different owner type.");
+    }
+    if (props.type === SecretType.DATABASE && props.ownerType === SecretOwner.USER) {
+      throw new CreateSecretException("Database secrets cannot be owned by users. Please choose a different owner type.");
+    }
 
     return new Secret({
       name: props.name,
@@ -41,7 +46,6 @@ export class Secret extends AggregateRoot<SecretProps> {
       status: SecretStatus.ACTIVE,
       createdAt: new Date(),
       versions: [],
-      currentVersion: props.currentVersion,
       createdBy: props.createdBy,
     });
   }
@@ -60,7 +64,6 @@ export class Secret extends AggregateRoot<SecretProps> {
 
   public setCurrentVersion(version: SecretVersion) {
     this.props.currentVersionId = version.id;
-    this.props.currentVersion = version;
     this.addVersion(version);
   }
 
@@ -107,7 +110,7 @@ export class Secret extends AggregateRoot<SecretProps> {
   }
 
   get currentVersion() {
-    return this.props.currentVersion;
+    return this.props.versions ? this.props.versions.find((v) => v.id.equals(this.props.currentVersionId!)) : null;
   }
 
   get versions() {

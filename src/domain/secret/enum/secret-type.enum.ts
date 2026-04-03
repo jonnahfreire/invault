@@ -3,6 +3,5 @@ export enum SecretType {
   DATABASE = "database",
   APIKEY = "apikey",
   SSH = "ssh",
-  JWT = "jwt",
   CERTIFICATE = "certificate",
 }

@@ -48,6 +48,7 @@
     "jsonwebtoken": "^9.0.3",
     "libsodium-wrappers-sumo": "^0.8.2",
     "nodemailer": "^7.0.13",
+    "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "sequelize": "^6.37.7",

@@ -1,14 +1,13 @@
-import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, HasMany, UpdatedAt, BelongsToMany } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, HasMany, UpdatedAt, BelongsToMany, DeletedAt } from "sequelize-typescript";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { Organization } from "@domain/organization/organization";
 import { Application } from "@domain/organization/application";
 import { OrganizationStatus } from "@domain/organization/enum/organization-status.enum";
-import { User } from "@domain/identity/user";
 import UserModel from "./user.model";
 import ApplicationModel from "./application.model";
-import MembershipModel from "./membership";
+import MembershipModel from "./membership.model";
 
-@Table({ tableName: "organization", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
+@Table({ tableName: "organizations", timestamps: true, paranoid: true, indexes: [{ unique: true, fields: ["id"] }] })
 export default class OrganizationModel extends Model {
   @PrimaryKey
   @Column({ type: DataType.UUID })
@@ -28,6 +27,10 @@ export default class OrganizationModel extends Model {
   @Column({ type: DataType.DATE, field: "updated_at" })
   declare updatedAt: Date;
 
+  @DeletedAt
+  @Column({ type: DataType.DATE, field: "deleted_at" })
+  declare deletedAt: Date;
+
   @BelongsToMany(() => UserModel, () => MembershipModel)
   declare users: UserModel[];
 
@@ -40,32 +43,21 @@ export default class OrganizationModel extends Model {
         name: this.name,
         status: this.status,
         createdAt: this.createdAt,
-        applications: this.applications.map(
-          (app) =>
-            new Application(
-              {
-                name: app.name,
-                organizationId: UniqueId.create(app.organization.id),
-                createdAt: app.createdAt,
-                secrets: app.secrets.map((secret) => secret.toDomain()),
-                serviceAccounts: app.serviceAccounts.map((account) => account.toDomain()),
-              },
-              UniqueId.create(app.id),
-            ),
-        ),
-        users: this.users.map(
-          (user) =>
-            new User(
-              {
-                name: user.name,
-                email: user.email,
-                mfaEnabled: user.mfaEnabled,
-                status: user.status,
-                createdAt: user.createdAt,
-              },
-              UniqueId.create(user.id),
-            ),
-        ),
+        applications: this.applications
+          ? this.applications.map(
+              (app) =>
+                new Application(
+                  {
+                    name: app.name,
+                    organizationId: UniqueId.create(app.organization.id),
+                    createdAt: app.createdAt,
+                    serviceAccounts: app.serviceAccounts ? app.serviceAccounts.map((account) => account.toDomain()) : [],
+                  },
+                  UniqueId.create(app.id),
+                ),
+            )
+          : [],
+        users: [],
       },
       UniqueId.create(this.id),
     );

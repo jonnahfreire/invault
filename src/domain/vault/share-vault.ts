@@ -1,5 +1,6 @@
 import { ShamirSecretSharing } from "@domain/key/shamir-secret-sharing";
 import { SecureBuffer } from "./secure-buffer";
+import { VaultException } from "./exception/vault.exception";
 
 export class ShareVault {
   private shares: SecureBuffer[] = [];
@@ -17,10 +18,8 @@ export class ShareVault {
   }
 
   addShare(share: Buffer) {
-    if (this.shares.length >= this.threshold) {
-      throw new Error("Threshold reached");
-    }
-
+    if (this.shares.length >= this.threshold) return;
+    if (this.shares.some((s) => s.value.toString("hex") === share.toString("hex"))) throw new VaultException("Shares must be unique");
     this.shares.push(SecureBuffer.from(share));
   }
 
@@ -30,7 +29,7 @@ export class ShareVault {
 
   getShares(): Buffer[] {
     if (!this.isReady()) {
-      throw new Error("Not enough shares");
+      throw new VaultException("Vault is sealed.");
     }
 
     return this.shares.map((s) => s.value);

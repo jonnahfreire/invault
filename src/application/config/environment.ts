@@ -29,13 +29,14 @@ export class Environment {
   readonly port: number;
   readonly nodeEnv: AppEnvironment;
   readonly domainUrl: string;
-  readonly kekSalt: string;
+  readonly systemName: string;
   readonly shamirThreshold: number;
   readonly database: DatabaseEnv;
 
   constructor(config: ConfigService) {
     this.port = Number(config.get("PORT", 3000));
     this.domainUrl = config.getOrThrow<string>("DOMAIN_URL");
+    this.systemName = config.getOrThrow<string>("SYSTEM_NAME");
     this.shamirThreshold = Number(config.getOrThrow<string>("SHAMIR_THRESHOLD"));
     this.nodeEnv = config.getOrThrow<AppEnvironment>("ENVIRONMENT");
 

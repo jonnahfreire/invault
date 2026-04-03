@@ -9,7 +9,7 @@ export class CreateSecretDto {
   @ApiProperty({ example: "apikey", description: "Type of the secret", type: String, enum: ["kv", "database", "apikey", "ssh", "certificate"] })
   type: SecretType;
 
-  @ApiProperty({ example: "c9f5-43a5-b564-5aed72169a0b", description: "ID of the owner this secret belongs to" })
+  @ApiProperty({ example: "410e6f52-0668-484d-bbb3-0941e04f9ba8", description: "ID of the owner this secret belongs to" })
   ownerId: string;
 
   @ApiProperty({ example: "application", description: "Type of the owner", type: String, enum: ["user", "application", "organization"] })
