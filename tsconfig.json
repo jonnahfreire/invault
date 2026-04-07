@@ -4,15 +4,14 @@
     "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "isolatedModules": true,
-    "declaration": true,
+    "declaration": false,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "esnext",
-    "sourceMap": true,
+    "sourceMap": false,
     "baseUrl": "./",
-    "rootDir": "./src",
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
@@ -35,6 +34,5 @@
     "@types/express/index.d.ts",
     "@types/types.d.ts"
   ],
-  "files": ["@types/express/index.d.ts", "@types/types.d.ts"],
-  "types": ["node", "jest"]
+  "files": ["@types/express/index.d.ts", "@types/types.d.ts"]
 }

@@ -1,8 +1,8 @@
 import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, BelongsToMany, DeletedAt } from "sequelize-typescript";
 import RoleModel from "./role.model";
-import { Permission } from "@domain/organization/permission";
 import { UniqueId } from "@domain/@common/uniqueid";
 import RolePermissionModel from "./role-permission.model";
+import { Permission } from "../../../../domain/permission/permission";
 
 @Table({
   tableName: "permissions",

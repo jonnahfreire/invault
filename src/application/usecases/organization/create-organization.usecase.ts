@@ -5,9 +5,9 @@ import IUserRepository from "@domain/identity/user.repository";
 import { Membership } from "@domain/organization/membership";
 import { Organization } from "@domain/organization/organization";
 import { IOrganizationRepository } from "@domain/organization/organization.repository";
-import { Permission } from "@domain/organization/permission";
-import { Role } from "@domain/organization/role";
 import { Injectable } from "@nestjs/common";
+import { Permission } from "../../../domain/permission/permission";
+import { Role } from "../../../domain/permission/role";
 import IUnitOfWork from "@application/unit-of-work/unit-of-work";
 
 interface Input {

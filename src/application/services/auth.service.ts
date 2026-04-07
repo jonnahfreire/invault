@@ -1,7 +1,7 @@
 import { User } from "../../domain/identity/user";
-import { Role } from "../../domain/organization/role";
-import { Permission } from "../../domain/organization/permission";
 import { UniqueId } from "../../domain/@common/uniqueid";
+import { Permission } from "../../domain/permission/permission";
+import { Role } from "../../domain/permission/role";
 
 export class AuthService {
   // Simple in-memory user store for demo

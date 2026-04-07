@@ -1,9 +1,9 @@
 import { Sequelize } from "sequelize";
 import { logger } from "src/application/config/logger";
 import { UniqueId } from "@domain/@common/uniqueid";
-import { Action, Permission } from "@domain/organization/permission";
+import { Permission, Action } from "../../domain/permission/permission";
+import { Role } from "../../domain/permission/role";
 import SystemModel from "./models/system/system.model";
-import { Role } from "@domain/organization/role";
 
 export default class SeedService {
   constructor(private readonly database: Sequelize) {}

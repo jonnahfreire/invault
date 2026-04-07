@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, BelongsTo, UpdatedAt, HasMany, ForeignKey, DeletedAt } from "sequelize-typescript";
 import OrganizationModel from "./organization.model";
-import { Application } from "@domain/organization/application";
+import { Application } from "@domain/application/application";
 import { UniqueId } from "@domain/@common/uniqueid";
 import ServiceAccountModel from "./service-account.model";
 

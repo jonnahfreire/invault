@@ -1,5 +1,5 @@
 import { Table, Column, Model, DataType, PrimaryKey, AllowNull, CreatedAt, BelongsTo, UpdatedAt, ForeignKey, BelongsToMany, DeletedAt } from "sequelize-typescript";
-import { Role } from "@domain/organization/role";
+import { Role } from "@domain/permission/role";
 import { UniqueId } from "@domain/@common/uniqueid";
 import OrganizationModel from "./organization.model";
 import PermissionModel from "./permission.model";

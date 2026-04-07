@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, HasMany, UpdatedAt, BelongsToMany, DeletedAt } from "sequelize-typescript";
 import { UniqueId } from "@domain/@common/uniqueid";
 import { Organization } from "@domain/organization/organization";
-import { Application } from "@domain/organization/application";
+import { Application } from "@domain/application/application";
 import { OrganizationStatus } from "@domain/organization/enum/organization-status.enum";
 import UserModel from "./user.model";
 import ApplicationModel from "./application.model";

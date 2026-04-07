@@ -9,7 +9,6 @@ export enum AuthSubject {
 export enum AuthMethodType {
   PASSWORD = "password",
   APIKEY = "apikey",
-  OAUTH = "oauth",
   JWT = "jwt",
   CERTIFICATE = "certificate",
 }

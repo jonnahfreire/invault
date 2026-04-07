@@ -1,5 +1,5 @@
 import { UniqueId } from "@domain/@common/uniqueid";
-import { Application } from "@domain/organization/application";
+import { Application } from "@domain/application/application";
 import { Organization } from "@domain/organization/organization";
 import { IOrganizationRepository } from "@domain/organization/organization.repository";
 import ApplicationModel from "@infra/database/models/organization/application.model";
@@ -11,8 +11,8 @@ export default class OrganizationRepository implements IOrganizationRepository {
     await OrganizationModel.upsert(
       {
         id: entity.id.toString(),
-        name: entity.props.name,
-        status: entity.props.status,
+        name: entity.name,
+        status: entity.status,
       },
       { transaction },
     );

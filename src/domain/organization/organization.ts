@@ -1,7 +1,7 @@
 import { User } from "@domain/identity/user";
 import { AggregateRoot } from "../@common/aggregate-root";
 import { UniqueId } from "../@common/uniqueid";
-import { Application } from "./application";
+import { Application } from "../application/application";
 import { OrganizationStatus } from "./enum/organization-status.enum";
 import CreateOrganizationException from "./exceptions/organization.exception";
 
@@ -31,6 +31,22 @@ export class Organization extends AggregateRoot<OrganizationProps> {
       users: [],
       createdAt: new Date(),
     });
+  }
+
+  get name() {
+    return this.props.name;
+  }
+
+  get status() {
+    return this.props.status;
+  }
+
+  get applications() {
+    return this.props.applications;
+  }
+
+  get users() {
+    return this.props.users;
   }
 
   public activate() {

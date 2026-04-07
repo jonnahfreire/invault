@@ -25,10 +25,10 @@ export default class CreateUserAccountUseCase {
     if (!input.name) throw new IllegalArgumentException("User name is required");
     if (!input.password) throw new IllegalArgumentException("User password is required");
 
-    const existingByEmail = await this.userRepository.findByEmail(input.email);
-    if (existingByEmail) throw new ArgumentConflictException("Email is already in use");
-
     await this.uow.run<void>(async (transaction) => {
+      const existingByEmail = await this.userRepository.findByEmail(input.email, transaction);
+      if (existingByEmail) throw new ArgumentConflictException("Email is already in use");
+
       const user = User.create({ name: input.name, email: input.email });
       const password = await Argon2idEncrypter.create(input.password);
       const account = ClientAccount.create(user.id, password, false);
