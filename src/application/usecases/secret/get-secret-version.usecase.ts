@@ -27,7 +27,7 @@ export default class GetSecretVersionUseCase {
   async execute({ secretId, actorId }: Input): Promise<string | number | boolean | Record<string, any>> {
     if (!secretId) throw new IllegalArgumentException("Secret ID is required");
 
-    const secret = await this.secretRepository.findById(UniqueId.create(secretId));
+    const secret = await this.secretRepository.findById(UniqueId.from(secretId));
     if (!secret) throw new ResourceNotFoundException("Secret not found");
 
     const currentVersion = secret.currentVersion;

@@ -34,8 +34,8 @@ export default class SecretModel extends Model {
   declare name: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING(50) })
-  declare type: string;
+  @Column({ type: DataType.ENUM(...Object.values(SecretType)) })
+  declare type: SecretType;
 
   @AllowNull(false)
   @Column({ type: DataType.ENUM(...Object.values(SecretStatus)), field: "status" })
@@ -60,16 +60,16 @@ export default class SecretModel extends Model {
     return new Secret(
       {
         name: this.name,
-        type: this.type as SecretType,
+        type: this.type,
         status: this.status,
-        ownerId: UniqueId.create(this.ownerId),
+        ownerId: UniqueId.from(this.ownerId),
         ownerType: this.ownerType,
         createdAt: this.createdAt,
         createdBy: this.createdBy,
         versions: this.versions ? this.versions.map((version) => version.toDomain()) : [],
-        currentVersionId: this.currentVersionId ? UniqueId.create(this.currentVersionId) : null,
+        currentVersionId: this.currentVersionId ? UniqueId.from(this.currentVersionId) : null,
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

@@ -22,4 +22,20 @@ export class RotationPolicy extends AggregateRoot<RotationPolicyProps> {
       maxUses,
     });
   }
+
+  get secretId(): UniqueId {
+    return this.props.secretId;
+  }
+
+  get strategy(): RotationStrategy {
+    return this.props.strategy;
+  }
+
+  get interval(): number | undefined {
+    return this.props.interval;
+  }
+
+  get maxUses(): number | undefined {
+    return this.props.maxUses;
+  }
 }

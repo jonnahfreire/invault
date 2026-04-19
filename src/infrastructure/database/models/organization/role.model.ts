@@ -48,10 +48,10 @@ export default class RoleModel extends Model {
     return new Role(
       {
         name: this.name,
-        organizationId: this.organizationId ? UniqueId.create(this.organizationId) : undefined,
+        organizationId: this.organizationId ? UniqueId.from(this.organizationId) : undefined,
         permissions: this.permissions.map((perm) => perm.toDomain()),
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

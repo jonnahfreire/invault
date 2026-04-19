@@ -6,7 +6,7 @@ import { UniqueId } from "../@common/uniqueid";
 
 describe("Role entity", () => {
   it("should create role with basic properties", () => {
-    const organizationId = UniqueId.create("org-123");
+    const organizationId = UniqueId.from("org-123");
 
     const role = Role.create({
       name: "admin",

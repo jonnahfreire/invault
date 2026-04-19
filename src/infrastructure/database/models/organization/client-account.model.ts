@@ -43,13 +43,13 @@ export default class ClientAccountModel extends Model {
   toDomain(): ClientAccount {
     return new ClientAccount(
       {
-        userId: UniqueId.create(this.userId),
+        userId: UniqueId.from(this.userId),
         status: this.status,
         passwordHash: this.passwordHash,
         mfaEnabled: this.mfaEnabled,
         createdAt: this.createdAt,
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

@@ -32,7 +32,7 @@ describe("User entity", () => {
       email: "t@t.com",
     });
 
-    const account = ClientAccount.create(UniqueId.create("user-id-1"), "hashed-password", false);
+    const account = ClientAccount.create(UniqueId.from("user-id-1"), "hashed-password", false);
 
     user.setAccount(account);
     expect(user.account).toEqual(account);

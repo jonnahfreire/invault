@@ -27,7 +27,7 @@ export default class ListApplicationSecretsUsecase {
   async execute(input: Input): Promise<Output[]> {
     if (!input.applicationId) throw new IllegalArgumentException("Application ID is required to list application secrets.");
 
-    const secrets = await this.secretRepository.findAllByOwnerId(new UniqueId(input.applicationId));
+    const secrets = await this.secretRepository.findAllByOwnerId(UniqueId.from(input.applicationId));
 
     return secrets.map((secret) => {
       return {

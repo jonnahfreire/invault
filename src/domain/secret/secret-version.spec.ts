@@ -5,8 +5,8 @@ import { UniqueId } from "../@common/uniqueid";
 
 describe("SecretVersion entity", () => {
   it("should create a valid secret version", () => {
-    const secretId = UniqueId.create("secret-123");
-    const dekId = UniqueId.create("dek-123");
+    const secretId = UniqueId.from("secret-123");
+    const dekId = UniqueId.from("dek-123");
 
     const version = SecretVersion.create({
       secretId,
@@ -35,8 +35,8 @@ describe("SecretVersion entity", () => {
   });
 
   it("should reject expiration dates in the past", () => {
-    const secretId = UniqueId.create("secret-123");
-    const dekId = UniqueId.create("dek-123");
+    const secretId = UniqueId.from("secret-123");
+    const dekId = UniqueId.from("dek-123");
 
     expect(() =>
       SecretVersion.create({

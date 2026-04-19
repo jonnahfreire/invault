@@ -38,15 +38,15 @@ export default class AuditEventModel extends Model {
   toDomain(): AuditEvent {
     return new AuditEvent(
       {
-        actorId: UniqueId.create(this.actorId),
+        actorId: UniqueId.from(this.actorId),
         action: this.action,
-        resourceId: UniqueId.create(this.resourceId),
+        resourceId: UniqueId.from(this.resourceId),
         timestamp: this.timestamp,
         metadata: this.metadata,
         previousHash: this.previousHash,
         currentHash: this.currentHash,
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

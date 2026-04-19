@@ -41,11 +41,11 @@ export default class ServiceAccountModel extends Model {
     return new ServiceAccount(
       {
         name: this.name,
-        applicationId: UniqueId.create(this.applicationId),
+        applicationId: UniqueId.from(this.applicationId),
         status: this.status,
         createdAt: this.createdAt,
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

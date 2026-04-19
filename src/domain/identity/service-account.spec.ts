@@ -6,7 +6,7 @@ import { UniqueId } from "../@common/uniqueid";
 
 describe("ServiceAccount entity", () => {
   it("should create service account as active", () => {
-    const applicationId = UniqueId.create("app-123");
+    const applicationId = UniqueId.from("app-123");
 
     const serviceAccount = ServiceAccount.create("test-service", applicationId);
 
@@ -20,7 +20,7 @@ describe("ServiceAccount entity", () => {
   });
 
   it("should revoke service account", () => {
-    const applicationId = UniqueId.create("app-123");
+    const applicationId = UniqueId.from("app-123");
     const serviceAccount = ServiceAccount.create("test-service", applicationId);
 
     expect(serviceAccount.isActive()).toBe(true);

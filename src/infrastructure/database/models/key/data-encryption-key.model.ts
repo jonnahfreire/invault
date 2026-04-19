@@ -40,7 +40,7 @@ export default class DataEncryptionKeyModel extends Model {
         cipher: this.cipher,
         createdAt: this.createdAt,
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

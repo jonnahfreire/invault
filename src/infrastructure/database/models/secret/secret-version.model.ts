@@ -53,15 +53,15 @@ export default class SecretVersionModel extends Model {
   toDomain(): SecretVersion {
     return new SecretVersion(
       {
-        secretId: UniqueId.create(this.secretId),
-        dekId: UniqueId.create(this.dekId),
+        secretId: UniqueId.from(this.secretId),
+        dekId: UniqueId.from(this.dekId),
         version: this.version,
         payload: this.payload,
-        createdBy: this.createdBy ? UniqueId.create(this.createdBy) : undefined,
+        createdBy: this.createdBy ? UniqueId.from(this.createdBy) : undefined,
         createdAt: this.createdAt,
         expiresAt: this.expiresAt,
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

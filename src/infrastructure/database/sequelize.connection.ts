@@ -1,18 +1,17 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
-import { ConnectionQueryParams, IDatabaseConnection } from "../../application/database/database-connection";
+import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from "@nestjs/common";
+import { ConnectionQueryParams, IDatabaseConnection } from "@application/database/database-connection";
+import { buildSequelizeOptions } from "./sequelize-options.builder";
 import { Sequelize } from "sequelize-typescript";
-import { Environment } from "src/application/config/environment";
-import { DATE, QueryTypes, Transaction } from "sequelize";
-import { logger } from "../../application/config/logger";
-import SeedService from "./seed.service";
+import { QueryTypes, Transaction } from "sequelize";
+import { ensureSequelizeDateStringifyPatch } from "./sequelize-date.patch";
+import { Environment } from "@application/config/environment";
 
 @Injectable()
-export default class SequelizeConnection extends IDatabaseConnection implements OnModuleInit, OnModuleDestroy {
+export default class SequelizeConnection implements IDatabaseConnection, OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(SequelizeConnection.name);
   private sequelize!: Sequelize;
 
-  constructor(private readonly environment: Environment) {
-    super();
-  }
+  constructor(private readonly environment: Environment) {}
 
   async onModuleInit() {
     await this.connect();
@@ -24,42 +23,29 @@ export default class SequelizeConnection extends IDatabaseConnection implements 
 
   async connect(): Promise<void> {
     try {
-      DATE.prototype._stringify = function _stringify(date: any, options: any) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        date = this._applyTimezone(date, options);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-        return date.format("YYYY-MM-DD HH:mm:ss.SSS");
-      };
+      ensureSequelizeDateStringifyPatch();
 
-      this.sequelize = new Sequelize({
-        dialect: "postgres", // postgres | mysql | mariadb | sqlite
-        host: String(this.environment.database.host),
-        port: Number(this.environment.database.port),
-        database: String(this.environment.database.name),
-        username: String(this.environment.database.user),
-        password: String(this.environment.database.password),
-        logging: false,
-        timezone: "America/Sao_Paulo", // Set timezone to Brasilia time
-      });
+      this.sequelize = new Sequelize(
+        buildSequelizeOptions({
+          host: String(this.environment.database.host),
+          port: Number(this.environment.database.port),
+          database: String(this.environment.database.name),
+          username: String(this.environment.database.user),
+          password: String(this.environment.database.password),
+          logging: false,
+        }),
+      );
 
       this.sequelize.addModels([__dirname + "/models/**/*.model.{ts,js}"]);
-      await this.sequelize.authenticate();
-      await this.sequelize.sync({ alter: true });
+      await this.sequelize.authenticate({
+        logging: (msg) => this.logger.debug(msg),
+        benchmark: true,
+      });
 
-      logger.info("---------------------------------------------------");
-      logger.info("Database connection established successfully");
-      if (this.environment.isDevelopment) {
-        logger.info("Database connection details:");
-        logger.info(`Host: ${this.environment.database.host}`);
-        logger.info(`Port: ${this.environment.database.port}`);
-        logger.info(`Database: ${this.environment.database.name}`);
-        logger.info("Added Models: " + Object.keys(this.sequelize.models).join(", ") + "\n");
-      }
-
-      const seeder = new SeedService(this.sequelize);
-      await seeder.seed();
+      this.logger.log(`Database ${this.environment.database.name} connected`);
     } catch (error) {
-      logger.error("Failed to connect to the database:", error);
+      if (error instanceof Error) this.logger.error(`Failed to connect to the database: ${error.message}`, error.stack);
+      else this.logger.error(`Failed to connect to the database: ${String(error)}`);
       throw error;
     }
   }

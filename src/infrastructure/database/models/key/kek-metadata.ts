@@ -11,7 +11,7 @@ export default class KekMetadataModel extends Model {
 
   @AllowNull(false)
   @Column({ type: DataType.STRING(100) })
-  salt: string;
+  declare salt: string;
 
   @AllowNull(false)
   @Column({ type: DataType.STRING(50) })
@@ -41,7 +41,7 @@ export default class KekMetadataModel extends Model {
         createdAt: this.createdAt,
         version: this.version,
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

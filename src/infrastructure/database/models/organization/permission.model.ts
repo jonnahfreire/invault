@@ -41,7 +41,7 @@ export default class PermissionModel extends Model {
         resource: this.resource,
         action: this.action,
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

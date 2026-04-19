@@ -5,7 +5,7 @@ import { UniqueId } from "../@common/uniqueid";
 
 describe("PasswordCredential entity", () => {
   it("should create password credential with valid hash", () => {
-    const identityId = UniqueId.create("identity-123");
+    const identityId = UniqueId.from("identity-123");
     const passwordHash = "hashed-password-123";
 
     const credential = PasswordCredential.create({
@@ -20,7 +20,7 @@ describe("PasswordCredential entity", () => {
   });
 
   it("should throw error when password hash is missing", () => {
-    const identityId = UniqueId.create("identity-123");
+    const identityId = UniqueId.from("identity-123");
 
     expect(() =>
       PasswordCredential.create({

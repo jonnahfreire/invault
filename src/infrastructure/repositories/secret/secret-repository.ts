@@ -4,10 +4,15 @@ import { ISecretRepository } from "@domain/secret/secret.repository";
 import { Injectable } from "@nestjs/common";
 import SecretModel from "@infra/database/models/secret/secret.model";
 import SecretVersionModel from "@infra/database/models/secret/secret-version.model";
+import { BaseRepository } from "../base.repository";
+import { ITransactionContext } from "@application/unit-of-work/transaction-context";
 
 @Injectable()
-export default class SecretRepository implements ISecretRepository {
-  async save(entity: Secret, transaction?: any): Promise<void> {
+export default class SecretRepository extends BaseRepository implements ISecretRepository {
+  constructor(protected readonly context: ITransactionContext) {
+    super(context);
+  }
+  async save(entity: Secret): Promise<void> {
     await SecretModel.upsert(
       {
         id: entity.id.toString(),
@@ -18,7 +23,7 @@ export default class SecretRepository implements ISecretRepository {
         status: entity.status,
         createdBy: entity.createdBy,
       },
-      { transaction },
+      { transaction: this.transaction },
     );
 
     for (const version of entity.versions) {
@@ -32,51 +37,51 @@ export default class SecretRepository implements ISecretRepository {
           createdBy: version.createdBy?.toString(),
           expiresAt: version.expiresAt,
         },
-        { transaction },
+        { transaction: this.transaction },
       );
     }
 
-    await SecretModel.update({ currentVersionId: entity.currentVersionId?.toString() }, { where: { id: entity.id.toString() }, transaction });
+    await SecretModel.update({ currentVersionId: entity.currentVersionId?.toString() }, { where: { id: entity.id.toString() }, transaction: this.transaction });
   }
 
-  async findByName(name: string, transaction?: any): Promise<Secret | null> {
+  async findByName(name: string): Promise<Secret | null> {
     const secret = await SecretModel.findOne({
       where: { name },
       include: [{ model: SecretVersionModel, as: "versions" }],
-      transaction,
+      transaction: this.transaction,
     });
 
     return secret ? secret.toDomain() : null;
   }
 
-  async findById(id: UniqueId, transaction?: any): Promise<Secret | null> {
+  async findById(id: UniqueId): Promise<Secret | null> {
     const secret = await SecretModel.findByPk(id.toString(), {
       include: [{ model: SecretVersionModel, as: "versions" }],
-      transaction,
+      transaction: this.transaction,
     });
 
     return secret ? secret.toDomain() : null;
   }
 
-  async findOneByOwnerId(ownerId: UniqueId, transaction?: any): Promise<Secret | null> {
+  async findOneByOwnerId(ownerId: UniqueId): Promise<Secret | null> {
     const secret = await SecretModel.findOne({
       where: { ownerId: ownerId.toString() },
       include: [{ model: SecretVersionModel, as: "versions" }],
-      transaction,
+      transaction: this.transaction,
     });
     return secret ? secret.toDomain() : null;
   }
 
-  async findAllByOwnerId(ownerId: UniqueId, transaction?: any): Promise<Secret[]> {
+  async findAllByOwnerId(ownerId: UniqueId): Promise<Secret[]> {
     const secrets = await SecretModel.findAll({
       where: { ownerId: ownerId.toString() },
       include: [{ model: SecretVersionModel, as: "versions" }],
-      transaction,
+      transaction: this.transaction,
     });
     return secrets.map((secret) => secret.toDomain());
   }
 
-  async delete(id: UniqueId, transaction?: any): Promise<void> {
-    await SecretModel.destroy({ where: { id: id.toString() }, transaction });
+  async delete(id: UniqueId): Promise<void> {
+    await SecretModel.destroy({ where: { id: id.toString() }, transaction: this.transaction });
   }
 }

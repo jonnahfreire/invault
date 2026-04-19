@@ -40,11 +40,11 @@ export default class ApplicationModel extends Model {
     return new Application(
       {
         name: this.name,
-        organizationId: UniqueId.create(this.organizationId),
+        organizationId: UniqueId.from(this.organizationId),
         createdAt: this.createdAt,
         serviceAccounts: this.serviceAccounts ? this.serviceAccounts.map((account) => account.toDomain()) : [],
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

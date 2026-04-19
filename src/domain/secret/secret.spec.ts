@@ -9,7 +9,7 @@ import { UniqueId } from "../@common/uniqueid";
 
 describe("Secret entity", () => {
   it("should create a secret with default active status", () => {
-    const ownerId = UniqueId.create("owner-123");
+    const ownerId = UniqueId.from("owner-123");
 
     const secret = Secret.create({
       name: "demo-secret",
@@ -29,7 +29,7 @@ describe("Secret entity", () => {
   });
 
   it("should reject creating a secret when required props are missing", () => {
-    const ownerId = UniqueId.create("owner-123");
+    const ownerId = UniqueId.from("owner-123");
 
     expect(() =>
       Secret.create({
@@ -51,7 +51,7 @@ describe("Secret entity", () => {
   });
 
   it("should forbid APIKEY and DATABASE secret owners as USER", () => {
-    const ownerId = UniqueId.create("owner-123");
+    const ownerId = UniqueId.from("owner-123");
 
     expect(() =>
       Secret.create({
@@ -73,7 +73,7 @@ describe("Secret entity", () => {
   });
 
   it("should revoke secret and set current version", () => {
-    const ownerId = UniqueId.create("owner-123");
+    const ownerId = UniqueId.from("owner-123");
     const secret = Secret.create({
       name: "demo-secret",
       type: SecretType.KV,
@@ -87,7 +87,7 @@ describe("Secret entity", () => {
     expect(secret.status).toBe(SecretStatus.REVOKED);
     expect(secret.isRevoked()).toBe(true);
 
-    const dekId = UniqueId.create("dek-1");
+    const dekId = UniqueId.from("dek-1");
     const secretVersion = SecretVersion.create({
       secretId: ownerId,
       dekId,

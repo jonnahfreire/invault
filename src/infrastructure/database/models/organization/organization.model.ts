@@ -49,17 +49,17 @@ export default class OrganizationModel extends Model {
                 new Application(
                   {
                     name: app.name,
-                    organizationId: UniqueId.create(app.organization.id),
+                    organizationId: UniqueId.from(app.organization.id),
                     createdAt: app.createdAt,
                     serviceAccounts: app.serviceAccounts ? app.serviceAccounts.map((account) => account.toDomain()) : [],
                   },
-                  UniqueId.create(app.id),
+                  UniqueId.from(app.id),
                 ),
             )
           : [],
         users: [],
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

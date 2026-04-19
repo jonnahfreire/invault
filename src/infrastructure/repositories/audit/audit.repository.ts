@@ -2,10 +2,16 @@ import { AuditEvent } from "@domain/audit/audit-event";
 import IAuditRepository from "@domain/audit/audit.repository";
 import AuditEventModel from "@infra/database/models/audit/audit-event.model";
 import { Injectable } from "@nestjs/common";
+import { BaseRepository } from "../base.repository";
+import { ITransactionContext } from "@application/unit-of-work/transaction-context";
 
 @Injectable()
-export default class AuditRepository implements IAuditRepository {
-  async save(event: AuditEvent, transaction?: any): Promise<void> {
+export default class AuditRepository extends BaseRepository implements IAuditRepository {
+  constructor(protected readonly context: ITransactionContext) {
+    super(context);
+  }
+
+  async save(event: AuditEvent): Promise<void> {
     await AuditEventModel.create(
       {
         id: event.id.toString(),
@@ -17,7 +23,7 @@ export default class AuditRepository implements IAuditRepository {
         previousHash: event.previousHash,
         currentHash: event.currentHash,
       },
-      transaction,
+      { transaction: this.transaction },
     );
   }
 }

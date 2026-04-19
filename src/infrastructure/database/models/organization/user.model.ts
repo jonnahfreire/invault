@@ -51,7 +51,7 @@ export default class UserModel extends Model {
         account: this.account.toDomain(),
         createdAt: this.createdAt,
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }

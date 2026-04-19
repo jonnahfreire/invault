@@ -5,46 +5,54 @@ import { IOrganizationRepository } from "@domain/organization/organization.repos
 import ApplicationModel from "@infra/database/models/organization/application.model";
 import OrganizationModel from "@infra/database/models/organization/organization.model";
 import UserModel from "@infra/database/models/organization/user.model";
+import { Injectable } from "@nestjs/common";
+import { BaseRepository } from "../base.repository";
+import { ITransactionContext } from "@application/unit-of-work/transaction-context";
 
-export default class OrganizationRepository implements IOrganizationRepository {
-  async save(entity: Organization, transaction?: any): Promise<void> {
+@Injectable()
+export default class OrganizationRepository extends BaseRepository implements IOrganizationRepository {
+  constructor(protected readonly context: ITransactionContext) {
+    super(context);
+  }
+
+  async save(entity: Organization): Promise<void> {
     await OrganizationModel.upsert(
       {
         id: entity.id.toString(),
         name: entity.name,
         status: entity.status,
       },
-      { transaction },
+      { transaction: this.transaction },
     );
   }
 
-  async findById(id: UniqueId, transaction?: any): Promise<Organization | null> {
-    const organization = await OrganizationModel.findByPk(id.toString(), { transaction });
+  async findById(id: UniqueId): Promise<Organization | null> {
+    const organization = await OrganizationModel.findByPk(id.toString(), { transaction: this.transaction });
     return organization ? organization.toDomain() : null;
   }
 
-  async findAll(transaction?: any): Promise<Organization[]> {
+  async findAll(): Promise<Organization[]> {
     const organizations = await OrganizationModel.findAll({
       include: [
         { model: ApplicationModel, as: "applications" },
         { model: UserModel, as: "users" },
       ],
-      transaction,
+      transaction: this.transaction,
     });
     return organizations.map((organization) => organization.toDomain());
   }
 
-  async delete(id: UniqueId, transaction?: any): Promise<void> {
-    await OrganizationModel.destroy({ where: { id: id.toString() }, transaction });
+  async delete(id: UniqueId): Promise<void> {
+    await OrganizationModel.destroy({ where: { id: id.toString() }, transaction: this.transaction });
   }
 
-  async findByName(name: string, transaction?: any): Promise<Organization | null> {
-    const organization = await OrganizationModel.findOne({ where: { name }, transaction });
+  async findByName(name: string): Promise<Organization | null> {
+    const organization = await OrganizationModel.findOne({ where: { name }, transaction: this.transaction });
     return organization ? organization.toDomain() : null;
   }
 
-  async findApplicationById(id: UniqueId, transaction?: any): Promise<Application | null> {
-    const application = await ApplicationModel.findByPk(id.toString(), { transaction });
+  async findApplicationById(id: UniqueId): Promise<Application | null> {
+    const application = await ApplicationModel.findByPk(id.toString(), { transaction: this.transaction });
     return application ? application.toDomain() : null;
   }
 }

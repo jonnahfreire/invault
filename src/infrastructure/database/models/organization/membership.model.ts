@@ -51,12 +51,12 @@ export default class MembershipModel extends Model {
     return new Membership(
       {
         active: this.active,
-        userId: UniqueId.create(this.userId),
-        organizationId: UniqueId.create(this.organizationId),
+        userId: UniqueId.from(this.userId),
+        organizationId: UniqueId.from(this.organizationId),
         joinedAt: this.joinedAt,
         roles: this.roles.map((role) => role.toDomain()),
       },
-      UniqueId.create(this.id),
+      UniqueId.from(this.id),
     );
   }
 }
