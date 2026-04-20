@@ -1,57 +1,27 @@
 import { Injectable } from "@nestjs/common";
-import EnvironmentException from "../exceptions/environment.exception";
 import { ConfigService } from "@nestjs/config";
-
-class DatabaseEnv {
-  constructor(
-    readonly user?: string,
-    readonly password?: string,
-    readonly host?: string,
-    readonly port?: number,
-    readonly name?: string,
-  ) {
-    if (!user) throw new EnvironmentException("DATABASE_USER env variable is not defined", "Verify the .env file for the definition of [DATABASE_USER] variable");
-    if (!password) throw new EnvironmentException("DATABASE_PASSWORD env variable is not defined", "Verify the .env file for the definition of [DATABASE_PASSWORD] variable");
-    if (!host) throw new EnvironmentException("DATABASE_HOST env variable is not defined", "Verify the .env file for the definition of [DATABASE_HOST] variable");
-    if (!name) throw new EnvironmentException("DATABASE_NAME env variable is not defined", "Verify the .env file for the definition of [DATABASE_NAME] variable");
-  }
-}
-
-export enum AppEnvironment {
-  Development = "development",
-  Homologation = "homolog",
-  Production = "production",
-  Test = "test",
-}
+import AppConfig, { AppEnvironment } from "./app.config";
+import DatabaseConfig from "./database.config";
 
 @Injectable()
 export class Environment {
-  readonly port: number;
-  readonly nodeEnv: AppEnvironment;
-  readonly domainUrl: string;
-  readonly systemName: string;
-  readonly shamirThreshold: number;
-  readonly database: DatabaseEnv;
+  readonly app: AppConfig;
+  readonly database: DatabaseConfig;
 
   constructor(config: ConfigService) {
-    this.port = Number(config.get("PORT", 3000));
-    this.domainUrl = config.getOrThrow<string>("DOMAIN_URL");
-    this.systemName = config.getOrThrow<string>("SYSTEM_NAME");
-    this.shamirThreshold = Number(config.getOrThrow<string>("SHAMIR_THRESHOLD"));
-    this.nodeEnv = config.getOrThrow<AppEnvironment>("ENVIRONMENT");
-
-    this.database = new DatabaseEnv(config.get("DATABASE_USER"), config.get("DATABASE_PASSWORD"), config.get("DATABASE_HOST"), config.get<number>("DATABASE_PORT"), config.get("DATABASE_NAME"));
+    this.app = new AppConfig(config);
+    this.database = new DatabaseConfig(config);
   }
 
   get isDevelopment(): boolean {
-    return this.nodeEnv === AppEnvironment.Development;
+    return this.app.nodeEnv === AppEnvironment.Development;
   }
 
   get isHomolog(): boolean {
-    return this.nodeEnv === AppEnvironment.Homologation;
+    return this.app.nodeEnv === AppEnvironment.Homologation;
   }
 
   get isProduction(): boolean {
-    return this.nodeEnv === AppEnvironment.Production;
+    return this.app.nodeEnv === AppEnvironment.Production;
   }
 }

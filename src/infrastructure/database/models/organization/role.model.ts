@@ -17,14 +17,14 @@ export default class RoleModel extends Model {
 
   @ForeignKey(() => RoleModel)
   @Column({ type: DataType.UUID, field: "parent_role_id", allowNull: true })
-  parentRoleId?: string;
+  declare parentRoleId?: string;
 
   @BelongsTo(() => RoleModel, "parentRoleId")
-  parentRole?: RoleModel;
+  declare parentRole?: RoleModel;
 
   @ForeignKey(() => RoleModel)
   @Column({ type: DataType.UUID, field: "organization_id", allowNull: true })
-  organizationId?: string;
+  declare organizationId?: string;
 
   @BelongsTo(() => OrganizationModel, "organizationId")
   declare organization: OrganizationModel;
@@ -49,7 +49,7 @@ export default class RoleModel extends Model {
       {
         name: this.name,
         organizationId: this.organizationId ? UniqueId.from(this.organizationId) : undefined,
-        permissions: this.permissions.map((perm) => perm.toDomain()),
+        permissions: this.permissions?.map((perm) => perm.toDomain()),
       },
       UniqueId.from(this.id),
     );

@@ -5,6 +5,7 @@ import { Sequelize } from "sequelize-typescript";
 import { QueryTypes, Transaction } from "sequelize";
 import { ensureSequelizeDateStringifyPatch } from "./sequelize-date.patch";
 import { Environment } from "@application/config/environment";
+import SeedService from "./seed.service";
 
 @Injectable()
 export default class SequelizeConnection implements IDatabaseConnection, OnModuleInit, OnModuleDestroy {
@@ -41,6 +42,9 @@ export default class SequelizeConnection implements IDatabaseConnection, OnModul
         logging: (msg) => this.logger.debug(msg),
         benchmark: true,
       });
+
+      await this.sequelize.sync({ alter: true });
+      await new SeedService(this.sequelize).seed();
 
       this.logger.log(`Database ${this.environment.database.name} connected`);
     } catch (error) {

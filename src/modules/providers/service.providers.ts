@@ -7,11 +7,13 @@ import TransactionContext from "@infra/database/transaction/transactional.contex
 import UnitOfWork from "@infra/database/transaction/unit-of-work";
 import SequelizeConnection from "@infra/database/sequelize.connection";
 import AuthorizationService from "@application/services/authorization.service";
+import { SecretAuthorizationService } from "@application/services/secret-authorization.service";
 import TransactionExecutor from "../../infrastructure/database/transaction/transaction-executor";
 import TransactionalBootstrapService from "../../infrastructure/database/transaction/transactional-bootstrap.service";
 
 export const SERVICE_PROVIDERS = [
   AuthorizationService,
+  SecretAuthorizationService,
   KeyManagerService,
   AuditService,
   TransactionExecutor,

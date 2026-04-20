@@ -13,6 +13,7 @@ import { Secret } from "@domain/secret/secret";
 import { SecretVersion } from "@domain/secret/secret-version";
 import { ISecretRepository } from "@domain/secret/secret.repository";
 import { Injectable } from "@nestjs/common";
+import { SecretAuthorizationService } from "@application/services/secret-authorization.service";
 
 interface Input {
   name: string;
@@ -28,6 +29,7 @@ interface Input {
 export default class CreateSecretUsecase {
   constructor(
     private readonly auditService: AuditService,
+    private readonly secretAuthorizationService: SecretAuthorizationService,
     private readonly keyManagerService: KeyManagerService,
     private readonly secretRepository: ISecretRepository,
     private readonly dataEncryptionKeyRepository: IDataEncryptionKeyRepository,
@@ -35,6 +37,10 @@ export default class CreateSecretUsecase {
 
   @Transactional()
   async execute(input: Input): Promise<void> {
+    if (!input.createdBy) throw new ArgumentConflictException("Actor is required to create secret");
+
+    await this.secretAuthorizationService.ensureAuthorized(input.ownerType, UniqueId.from(input.ownerId), input.createdBy, "write");
+
     const existingSecret = await this.secretRepository.findByName(input.name);
     if (existingSecret) throw new ArgumentConflictException("Secret with this name already exists");
 

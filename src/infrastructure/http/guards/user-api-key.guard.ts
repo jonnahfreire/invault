@@ -20,7 +20,7 @@ export class UserApiKeyGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<Request>();
 
-    const apiKey = request.headers["this.environment"] as string;
+    const apiKey = request.headers["x-api-key"] as string;
     const authorization = await this.authorizationService.getClientAuthorization(apiKey);
     if (!authorization.authorized) throw new IllegalAccessException("Não autorizado");
 

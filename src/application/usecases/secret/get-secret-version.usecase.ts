@@ -9,6 +9,7 @@ import { IDataEncryptionKeyRepository } from "@domain/key/data-encryption-key.re
 import { KeyEncryptionKey } from "@domain/key/key-encryption-key";
 import { ISecretRepository } from "@domain/secret/secret.repository";
 import { Injectable } from "@nestjs/common";
+import { SecretAuthorizationService } from "@application/services/secret-authorization.service";
 
 interface Input {
   secretId: string;
@@ -19,6 +20,7 @@ interface Input {
 export default class GetSecretVersionUseCase {
   constructor(
     private readonly auditService: AuditService,
+    private readonly secretAuthorizationService: SecretAuthorizationService,
     private readonly keyManagerService: KeyManagerService,
     private readonly secretRepository: ISecretRepository,
     private readonly dataEncryptionKeyRepository: IDataEncryptionKeyRepository,
@@ -29,6 +31,8 @@ export default class GetSecretVersionUseCase {
 
     const secret = await this.secretRepository.findById(UniqueId.from(secretId));
     if (!secret) throw new ResourceNotFoundException("Secret not found");
+
+    await this.secretAuthorizationService.ensureAuthorized(secret.ownerType, secret.ownerId, actorId, "read");
 
     const currentVersion = secret.currentVersion;
     if (!currentVersion) throw new ResourceNotFoundException("Secret version not found");

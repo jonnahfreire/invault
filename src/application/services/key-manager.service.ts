@@ -10,7 +10,7 @@ export class KeyManagerService {
   private vault: ShareVault;
 
   constructor(private readonly environment: Environment) {
-    this.vault = new ShareVault(this.environment.shamirThreshold);
+    this.vault = new ShareVault(this.environment.app.shamirThreshold);
   }
 
   addShare(share: string) {
@@ -18,7 +18,7 @@ export class KeyManagerService {
   }
 
   async deriveKEK(type: KekType, kekVersion: number): Promise<{ metadata: KeyEncryptionKey; material: Buffer<ArrayBuffer> }> {
-    const metadata = KeyEncryptionKey.create(type, this.environment.nodeEnv, kekVersion);
+    const metadata = KeyEncryptionKey.create(type, this.environment.app.nodeEnv, kekVersion);
     const material = KeyDerivation.deriveFrom(await this.vault.reconstructRK(), metadata.salt, type, metadata.env, metadata.version);
     this.vault.destroy();
 

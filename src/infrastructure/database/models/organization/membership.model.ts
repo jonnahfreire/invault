@@ -1,4 +1,4 @@
-import { Table, Model, ForeignKey, Column, DataType, CreatedAt, UpdatedAt, PrimaryKey, BelongsToMany, BelongsTo } from "sequelize-typescript";
+import { Table, Model, ForeignKey, Column, DataType, CreatedAt, UpdatedAt, DeletedAt, PrimaryKey, BelongsToMany, BelongsTo } from "sequelize-typescript";
 import OrganizationModel from "./organization.model";
 import UserModel from "./user.model";
 import MembershipRoleModel from "./membership-role.model";
@@ -10,7 +10,6 @@ import { Membership } from "@domain/organization/membership";
   tableName: "memberships",
   freezeTableName: true,
   timestamps: true,
-  deletedAt: false,
   paranoid: true,
   indexes: [{ unique: true, fields: ["id", "user_id", "organization_id"] }],
 })
@@ -46,6 +45,10 @@ export default class MembershipModel extends Model {
   @UpdatedAt
   @Column({ type: DataType.DATE, field: "updated_at" })
   declare updatedAt?: Date;
+
+  @DeletedAt
+  @Column({ type: DataType.DATE, field: "deleted_at" })
+  declare deletedAt?: Date;
 
   toDomain(): Membership {
     return new Membership(

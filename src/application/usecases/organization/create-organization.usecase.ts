@@ -4,6 +4,7 @@ import { Transactional } from "@application/unit-of-work/transactional.decorator
 import { UniqueId } from "@domain/@common/uniqueid";
 import IUserRepository from "@domain/identity/user.repository";
 import { Membership } from "@domain/organization/membership";
+import { IMembershipRepository } from "@domain/organization/membership.repository";
 import { Organization } from "@domain/organization/organization";
 import { IOrganizationRepository } from "@domain/organization/organization.repository";
 import { Injectable } from "@nestjs/common";
@@ -20,6 +21,7 @@ export default class CreateOrganizationUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly organizationRepository: IOrganizationRepository,
+    private readonly membershipRepository: IMembershipRepository,
   ) {}
 
   @Transactional()
@@ -38,8 +40,9 @@ export default class CreateOrganizationUseCase {
       Permission.create({ action: "delete", resource: "organization" }),
     ];
     const ownerRole = Role.create({ name: "owner", organizationId: organization.id, permissions: ownerPermissions });
-    // TODO: Save membership to database
-    Membership.create({ organizationId: organization.id, userId: owner.id, roles: [ownerRole] });
+    const membership = Membership.create({ organizationId: organization.id, userId: owner.id, roles: [ownerRole] });
+
     await this.organizationRepository.save(organization);
+    await this.membershipRepository.save(membership);
   }
 }

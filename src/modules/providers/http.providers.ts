@@ -7,13 +7,17 @@ import { SecretsController } from "@infra/http/controllers/secrets.controller";
 import { VaultController } from "@infra/http/controllers/vault.controller";
 import { OrganizationController } from "@infra/http/controllers/organization.controller";
 import { UserController } from "@infra/http/controllers/user.controller";
+import { AuthController } from "@infra/http/controllers/auth.controller";
+import { ApplicationController } from "@infra/http/controllers/application.controller";
+import { AuditController } from "@infra/http/controllers/audit.controller";
+import { JwtAuthGuard } from "@infra/http/guards/jwt-auth.guard";
 
 export const HTTP_PROVIDERS = {
-  CONTROLLERS: [VaultController, UserController, OrganizationController, SecretsController],
+  CONTROLLERS: [AuthController, VaultController, UserController, OrganizationController, SecretsController, ApplicationController, AuditController],
   FILTERS: [
     { provide: APP_FILTER, useClass: DomainExceptionFilter },
     { provide: APP_FILTER, useClass: ApplicationExceptionFilter },
   ],
   SWAGGER: [SwaggerConfiguration],
-  GUARDS: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  GUARDS: [{ provide: APP_GUARD, useClass: ThrottlerGuard }, { provide: APP_GUARD, useClass: JwtAuthGuard }, JwtAuthGuard],
 };

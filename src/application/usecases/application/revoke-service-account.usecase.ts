@@ -1,0 +1,46 @@
+import IllegalArgumentException from "@application/exceptions/illegal-argument.exception";
+import ResourceNotFoundException from "@application/exceptions/resource-not-found.exception";
+import { Transactional } from "@application/unit-of-work/transactional.decorator";
+import { UniqueId } from "@domain/@common/uniqueid";
+import IApplicationRepository from "@domain/application/application.repository";
+import { IServiceAccountRepository } from "@domain/identity/service-account.repository";
+import { IMembershipRepository } from "@domain/organization/membership.repository";
+import { Injectable } from "@nestjs/common";
+
+interface Input {
+  applicationId: string;
+  serviceAccountId: string;
+  requesterId: string;
+}
+
+@Injectable()
+export default class RevokeServiceAccountUseCase {
+  constructor(
+    private readonly applicationRepository: IApplicationRepository,
+    private readonly membershipRepository: IMembershipRepository,
+    private readonly serviceAccountRepository: IServiceAccountRepository,
+  ) {}
+
+  @Transactional()
+  async execute(input: Input): Promise<void> {
+    const application = await this.applicationRepository.findById(UniqueId.from(input.applicationId));
+    if (!application) throw new ResourceNotFoundException("Application not found");
+
+    const membership = await this.membershipRepository.findByUserAndOrganization(UniqueId.from(input.requesterId), application.organizationId);
+    if (!membership) throw new ResourceNotFoundException("You are not a member of this organization");
+
+    const isOwnerOrAdmin = membership.props.roles?.some((r) => r.props.name === "owner" || r.props.name === "admin");
+    if (!isOwnerOrAdmin) throw new ResourceNotFoundException("Insufficient permissions to manage service accounts");
+
+    const serviceAccount = await this.serviceAccountRepository.findById(UniqueId.from(input.serviceAccountId));
+    if (!serviceAccount) throw new ResourceNotFoundException("Service account not found");
+    if (serviceAccount.props.applicationId.toString() !== application.id.toString()) {
+      throw new IllegalArgumentException("Service account does not belong to application");
+    }
+
+    if (serviceAccount.isRevoked()) return;
+
+    serviceAccount.revoke();
+    await this.serviceAccountRepository.save(serviceAccount);
+  }
+}

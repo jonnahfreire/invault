@@ -13,7 +13,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   app.get(SwaggerConfiguration).create(app);
-  const port = app.get(Environment).port;
+  const port = app.get(Environment).app.port;
   await app.listen(port).then(() => logger.info(`Server running on port: ${port}`));
 }
 

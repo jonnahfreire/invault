@@ -10,7 +10,7 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "esnext",
-    "sourceMap": false,
+    "sourceMap": true,
     "baseUrl": "./",
     "outDir": "./dist",
     "incremental": true,

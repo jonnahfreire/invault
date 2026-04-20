@@ -2,7 +2,7 @@ import { UniqueId } from "@domain/@common/uniqueid";
 import { SecretOwner } from "@domain/secret/enum/secret-owner.enum";
 import { SecretType } from "@domain/secret/enum/secret-type.enum";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsUUID, MaxLength, IsOptional, IsDateString } from "class-validator";
+import { IsEnum, IsUUID, MaxLength, IsOptional, IsDateString, IsObject } from "class-validator";
 
 export class CreateSecretDto {
   @MaxLength(50)
@@ -21,8 +21,8 @@ export class CreateSecretDto {
   @ApiProperty({ example: "application", description: "Type of the owner", type: String, enum: ["user", "application", "organization"] })
   declare ownerType: SecretOwner;
 
-  @MaxLength(512)
-  @ApiProperty({ example: "supersecretapikey", description: "Initial data for the secret, structure depends on the secret type" })
+  @IsObject({ message: "initialData must be an object" })
+  @ApiProperty({ example: { key: "value" }, description: "Initial data for the secret, structure depends on the secret type" })
   declare initialData: Record<string, any>;
 
   @IsDateString()

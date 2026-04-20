@@ -2,9 +2,12 @@ import IllegalArgumentException from "@application/exceptions/illegal-argument.e
 import { UniqueId } from "@domain/@common/uniqueid";
 import { ISecretRepository } from "@domain/secret/secret.repository";
 import { Injectable } from "@nestjs/common";
+import { SecretAuthorizationService } from "@application/services/secret-authorization.service";
+import { SecretOwner } from "@domain/secret/enum/secret-owner.enum";
 
 interface Input {
   applicationId: string;
+  requesterId: string;
 }
 
 interface Output {
@@ -22,10 +25,15 @@ interface Output {
 
 @Injectable()
 export default class ListApplicationSecretsUsecase {
-  constructor(private readonly secretRepository: ISecretRepository) {}
+  constructor(
+    private readonly secretRepository: ISecretRepository,
+    private readonly secretAuthorizationService: SecretAuthorizationService,
+  ) {}
 
   async execute(input: Input): Promise<Output[]> {
     if (!input.applicationId) throw new IllegalArgumentException("Application ID is required to list application secrets.");
+
+    await this.secretAuthorizationService.ensureAuthorized(SecretOwner.APPLICATION, UniqueId.from(input.applicationId), input.requesterId, "read");
 
     const secrets = await this.secretRepository.findAllByOwnerId(UniqueId.from(input.applicationId));
 

@@ -10,8 +10,8 @@ export class SwaggerConfiguration {
   private readonly apiKeyHeaderName: string;
 
   constructor(private readonly environment: Environment) {
-    this.localhostUrl = `http://localhost:${this.environment.port}`;
-    this.apiUrl = this.environment.domainUrl;
+    this.localhostUrl = `http://localhost:${this.environment.app.port}`;
+    this.apiUrl = this.environment.app.domainUrl;
     this.apiKeyHeaderName = "apikey"; // this.environment.partnerAuthKeyName;
   }
 
@@ -22,14 +22,11 @@ export class SwaggerConfiguration {
       prefix: "api/v",
     });
 
-    this.createInvaultConfig(app);
-  }
-
-  private createInvaultConfig(app: INestApplication<any>) {
     const config = new DocumentBuilder()
       .setTitle("Invault Api")
       .setVersion("1.0")
       .setDescription("Documentação da Api para integração com o Invault")
+      .addBearerAuth({ type: "http", scheme: "bearer", bearerFormat: "JWT" }, "Bearer")
       .addApiKey({ type: "apiKey", name: this.apiKeyHeaderName, in: "header" }, "ApiKey");
 
     this.configureServerUrls(config);
