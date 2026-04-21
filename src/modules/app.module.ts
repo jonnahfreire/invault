@@ -1,8 +1,9 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { InvaultAppModule } from "./invault.module";
+import { CoreModule } from "./@core/intex";
+import { HTTP_PROVIDERS } from "./@core/providers";
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: ".env" }), InvaultAppModule],
+  imports: [CoreModule],
+  controllers: [...HTTP_PROVIDERS.CONTROLLERS],
 })
 export class AppModule {}

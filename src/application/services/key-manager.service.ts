@@ -17,6 +17,14 @@ export class KeyManagerService {
     this.vault.addShare(Buffer.from(share, "hex"));
   }
 
+  getVaultStatus() {
+    return this.vault.getStatus();
+  }
+
+  resealVault() {
+    this.vault.reseal();
+  }
+
   async deriveKEK(type: KekType, kekVersion: number): Promise<{ metadata: KeyEncryptionKey; material: Buffer<ArrayBuffer> }> {
     const metadata = KeyEncryptionKey.create(type, this.environment.app.nodeEnv, kekVersion);
     const material = KeyDerivation.deriveFrom(await this.vault.reconstructRK(), metadata.salt, type, metadata.env, metadata.version);

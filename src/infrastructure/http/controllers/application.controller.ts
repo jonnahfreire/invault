@@ -5,6 +5,7 @@ import { CreateApplicationDto, CreateServiceAccountDto, GenerateApiKeyDto } from
 import CreateApplicationUseCase from "@application/usecases/application/create-application.usecase";
 import GenerateApiKeyUseCase from "@application/usecases/application/generate-api-key.usecase";
 import ListApplicationApiKeysUseCase from "@application/usecases/application/list-application-api-keys.usecase";
+import RevokeApiKeyUseCase from "@application/usecases/application/revoke-api-key.usecase";
 import CreateServiceAccountUseCase from "@application/usecases/application/create-service-account.usecase";
 import ListApplicationServiceAccountsUseCase from "@application/usecases/application/list-application-service-accounts.usecase";
 import RevokeServiceAccountUseCase from "@application/usecases/application/revoke-service-account.usecase";
@@ -21,6 +22,7 @@ export class ApplicationController {
     private readonly createApplication: CreateApplicationUseCase,
     private readonly generateApiKey: GenerateApiKeyUseCase,
     private readonly listApplicationApiKeys: ListApplicationApiKeysUseCase,
+    private readonly revokeApiKey: RevokeApiKeyUseCase,
     private readonly createServiceAccount: CreateServiceAccountUseCase,
     private readonly listServiceAccounts: ListApplicationServiceAccountsUseCase,
     private readonly revokeServiceAccount: RevokeServiceAccountUseCase,
@@ -50,6 +52,13 @@ export class ApplicationController {
   @ApiOperation({ summary: "List application API keys", operationId: "listApplicationApiKeys" })
   async listApiKeys(@Param("applicationId") applicationId: string, @CurrentUser() user: { id: string }) {
     return this.listApplicationApiKeys.execute({ applicationId, requesterId: user.id });
+  }
+
+  @Delete("/:applicationId/api-keys/:apiKeyId")
+  @ApiOperation({ summary: "Revoke API key", operationId: "revokeApiKey" })
+  async revokeKey(@Param("applicationId") applicationId: string, @Param("apiKeyId") apiKeyId: string, @CurrentUser() user: { id: string }) {
+    await this.revokeApiKey.execute({ applicationId, apiKeyId, requesterId: user.id });
+    return { message: "API key revoked successfully" };
   }
 
   @Post("/:applicationId/service-accounts")

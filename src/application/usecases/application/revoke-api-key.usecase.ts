@@ -1,31 +1,22 @@
+import IllegalArgumentException from "@application/exceptions/illegal-argument.exception";
 import ResourceNotFoundException from "@application/exceptions/resource-not-found.exception";
 import { AuditService } from "@application/services/audit.service";
 import { Transactional } from "@application/unit-of-work/transactional.decorator";
 import { UniqueId } from "@domain/@common/uniqueid";
-import { ApiKey } from "@domain/application/api-key";
 import { IApiKeyRepository } from "@domain/application/api-key.repository";
 import IApplicationRepository from "@domain/application/application.repository";
 import { Aes256Wrapper } from "@domain/encryption/aes-256-wrapper";
 import { IMembershipRepository } from "@domain/organization/membership.repository";
 import { Injectable } from "@nestjs/common";
-import * as crypto from "crypto";
 
 interface Input {
   applicationId: string;
-  name: string;
+  apiKeyId: string;
   requesterId: string;
-  expiresAt?: Date;
-}
-
-interface Output {
-  id: string;
-  plainKey: string;
-  name: string;
-  expiresAt?: Date;
 }
 
 @Injectable()
-export default class GenerateApiKeyUseCase {
+export default class RevokeApiKeyUseCase {
   constructor(
     private readonly applicationRepository: IApplicationRepository,
     private readonly membershipRepository: IMembershipRepository,
@@ -34,7 +25,7 @@ export default class GenerateApiKeyUseCase {
   ) {}
 
   @Transactional()
-  async execute(input: Input): Promise<Output> {
+  async execute(input: Input): Promise<void> {
     const application = await this.applicationRepository.findById(UniqueId.from(input.applicationId));
     if (!application) throw new ResourceNotFoundException("Application not found");
 
@@ -42,23 +33,28 @@ export default class GenerateApiKeyUseCase {
     if (!membership) throw new ResourceNotFoundException("You are not a member of this organization");
 
     const isOwnerOrAdmin = membership.props.roles?.some((r) => r.props.name === "owner" || r.props.name === "admin");
-    if (!isOwnerOrAdmin) throw new ResourceNotFoundException("Insufficient permissions to generate API keys");
+    if (!isOwnerOrAdmin) throw new ResourceNotFoundException("Insufficient permissions to revoke API keys");
 
-    const rawKey = `invault_${crypto.randomBytes(32).toString("hex")}`;
-    const keyHash = crypto.createHash("sha256").update(rawKey).digest("hex");
+    const apiKey = await this.apiKeyRepository.findById(UniqueId.from(input.apiKeyId));
+    if (!apiKey) throw new ResourceNotFoundException("API key not found");
 
-    const apiKey = ApiKey.create(input.name, application.id, keyHash, input.expiresAt);
+    if (apiKey.applicationId.toString() !== application.id.toString()) {
+      throw new IllegalArgumentException("API key does not belong to application");
+    }
+
+    if (!apiKey.active) return;
+
+    apiKey.revoke();
     await this.apiKeyRepository.save(apiKey);
 
     await this.auditService.logEvent(
       UniqueId.create(input.requesterId),
-      "api_key.created",
+      "api_key.revoked",
       application.id,
       Aes256Wrapper.hashData({
         apiKeyId: apiKey.id.toString(),
         applicationId: application.id.toString(),
         name: apiKey.name,
-        expiresAt: apiKey.expiresAt,
       }),
       undefined,
       {
@@ -66,12 +62,5 @@ export default class GenerateApiKeyUseCase {
         applicationId: application.id.toString(),
       },
     );
-
-    return {
-      id: apiKey.id.toString(),
-      plainKey: rawKey,
-      name: apiKey.name,
-      expiresAt: apiKey.expiresAt,
-    };
   }
 }

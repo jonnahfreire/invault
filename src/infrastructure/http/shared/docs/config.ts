@@ -1,7 +1,6 @@
 import { INestApplication, Injectable, VersioningType } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { Environment } from "src/application/config/environment";
-import { InvaultAppModule } from "../../../../modules/invault.module";
 
 @Injectable()
 export class SwaggerConfiguration {
@@ -30,9 +29,7 @@ export class SwaggerConfiguration {
       .addApiKey({ type: "apiKey", name: this.apiKeyHeaderName, in: "header" }, "ApiKey");
 
     this.configureServerUrls(config);
-    const document = SwaggerModule.createDocument(app, config.build(), {
-      include: [InvaultAppModule],
-    });
+    const document = SwaggerModule.createDocument(app, config.build());
 
     SwaggerModule.setup("/docs", app, document, {
       jsonDocumentUrl: "/docs/json",

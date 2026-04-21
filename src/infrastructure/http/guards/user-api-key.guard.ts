@@ -25,8 +25,10 @@ export class UserApiKeyGuard implements CanActivate {
     if (!authorization.authorized) throw new IllegalAccessException("Não autorizado");
 
     request.user = {
-      id: authorization.id!,
-      name: authorization.name!,
+      id: authorization.applicationId,
+      name: "application",
+      type: authorization.principalType,
+      applicationId: authorization.applicationId,
     };
 
     return true;

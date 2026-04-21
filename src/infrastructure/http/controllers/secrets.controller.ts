@@ -9,8 +9,10 @@ import GetSecretVersionUseCase from "@application/usecases/secret/get-secret-ver
 import UpdateSecretUseCase from "@application/usecases/secret/update-secret.usecase";
 import RevokeSecretUseCase from "@application/usecases/secret/revoke-secret.usecase";
 import RotateSecretUseCase from "@application/usecases/secret/rotate-secret.usecase";
+import ListApplicationSecretsByApiKeyUseCase from "@application/usecases/secret/list-application-secrets-by-api-key.usecase";
 import { CurrentUser } from "../decorators/current-user.decorator";
 import { JwtAuthGuard } from "../guards/jwt-auth.guard";
+import { UserApiKeyAuth } from "../decorators/user-api-key.decorator";
 
 @Throttle({ default: { ttl: 1000, limit: 1 } })
 @ApiTags("Secrets")
@@ -22,6 +24,7 @@ export class SecretsController {
     private readonly createSecretUsecase: CreateSecretUsecase,
     private readonly getSecretVersionUsecase: GetSecretVersionUseCase,
     private readonly listApplicationSecretsUsecase: ListApplicationSecretsUsecase,
+    private readonly listApplicationSecretsByApiKeyUseCase: ListApplicationSecretsByApiKeyUseCase,
     private readonly updateSecretUseCase: UpdateSecretUseCase,
     private readonly revokeSecretUseCase: RevokeSecretUseCase,
     private readonly rotateSecretUseCase: RotateSecretUseCase,
@@ -65,5 +68,15 @@ export class SecretsController {
   @ApiOperation({ summary: "List Application Secrets", operationId: "listApplicationSecrets" })
   async listApplicationSecrets(@Param("applicationId") applicationId: string, @CurrentUser() user: { id: string }): Promise<ReturnType<ListApplicationSecretsUsecase["execute"]>> {
     return await this.listApplicationSecretsUsecase.execute({ applicationId, requesterId: user.id });
+  }
+
+  @Get("/m2m/applications/:applicationId/secrets")
+  @UserApiKeyAuth()
+  @ApiOperation({ summary: "List Application Secrets (M2M)", operationId: "listApplicationSecretsM2M" })
+  async listApplicationSecretsByApiKey(@Param("applicationId") applicationId: string, @CurrentUser() user: { id: string; applicationId?: string }) {
+    return await this.listApplicationSecretsByApiKeyUseCase.execute({
+      applicationId,
+      authenticatedApplicationId: user.applicationId ?? user.id,
+    });
   }
 }

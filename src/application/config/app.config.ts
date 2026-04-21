@@ -15,6 +15,7 @@ export default class AppConfig {
   readonly shamirThreshold: number;
   readonly jwtSecret: string;
   readonly jwtExpiresIn: string;
+  readonly corsAllowedOrigins: string[];
 
   constructor(private readonly config: ConfigService) {
     this.port = Number(this.config.get("PORT", 3000));
@@ -22,7 +23,16 @@ export default class AppConfig {
     this.systemName = this.config.getOrThrow<string>("SYSTEM_NAME");
     this.shamirThreshold = Number(this.config.getOrThrow<string>("SHAMIR_THRESHOLD"));
     this.nodeEnv = this.config.getOrThrow<AppEnvironment>("ENVIRONMENT");
-    this.jwtSecret = this.config.get<string>("JWT_SECRET", "invault-dev-jwt-secret");
-    this.jwtExpiresIn = this.config.get<string>("JWT_EXPIRES_IN", "7d");
+    this.jwtSecret = this.config.getOrThrow<string>("JWT_SECRET");
+    this.jwtExpiresIn = this.config.get<string>("JWT_EXPIRES_IN", "8h");
+    this.corsAllowedOrigins = this.resolveCorsAllowedOrigins();
+  }
+
+  private resolveCorsAllowedOrigins(): string[] {
+    const raw = this.config.get<string>("CORS_ALLOWED_ORIGINS", "*");
+    return raw
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean);
   }
 }

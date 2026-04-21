@@ -85,4 +85,45 @@ describe("ShareVault entity", () => {
     // Note: This test assumes destroy() clears shares when preserveShares=false
     expect(vault.isReady()).toBe(false);
   });
+
+  it("should expose sealed status, threshold and loaded shares", () => {
+    const vault = new ShareVault(2);
+
+    expect(vault.getStatus()).toEqual({
+      sealed: true,
+      sharesLoaded: 0,
+      threshold: 2,
+    });
+
+    vault.addShare(Buffer.from("share1"));
+    expect(vault.getStatus()).toEqual({
+      sealed: true,
+      sharesLoaded: 1,
+      threshold: 2,
+    });
+
+    vault.addShare(Buffer.from("share2"));
+    expect(vault.getStatus()).toEqual({
+      sealed: false,
+      sharesLoaded: 2,
+      threshold: 2,
+    });
+  });
+
+  it("should reseal vault and clear shares", () => {
+    const vault = new ShareVault(2);
+
+    vault.addShare(Buffer.from("share1"));
+    vault.addShare(Buffer.from("share2"));
+    expect(vault.isReady()).toBe(true);
+
+    vault.reseal();
+
+    expect(vault.isReady()).toBe(false);
+    expect(vault.getStatus()).toEqual({
+      sealed: true,
+      sharesLoaded: 0,
+      threshold: 2,
+    });
+  });
 });
